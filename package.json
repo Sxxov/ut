@@ -1,6 +1,6 @@
 {
 	"name": "@sxxov/ut",
-	"version": "1.0.1",
+	"version": "2.0.0",
 	"description": "",
 	"main": "",
 	"type": "module",
@@ -43,8 +43,59 @@
 	},
 	"dependencies": {},
 	"exports": {
-		"./*": {
-			"import": "./dist/*"
+		"./viewport": {
+			"import": "./dist/viewport/index.js"
+		},
+		"./types": {
+			"import": "./dist/types/index.js"
+		},
+		"./traverse": {
+			"import": "./dist/traverse/index.js"
+		},
+		"./thing": {
+			"import": "./dist/thing/index.js"
+		},
+		"./store": {
+			"import": "./dist/store/index.js"
+		},
+		"./store/stores": {
+			"import": "./dist/store/stores/index.js"
+		},
+		"./sleep": {
+			"import": "./dist/sleep/index.js"
+		},
+		"./random": {
+			"import": "./dist/random/index.js"
+		},
+		"./math": {
+			"import": "./dist/math/index.js"
+		},
+		"./functional": {
+			"import": "./dist/functional/index.js"
+		},
+		"./escape": {
+			"import": "./dist/escape/index.js"
+		},
+		"./errors": {
+			"import": "./dist/errors/index.js"
+		},
+		"./css": {
+			"import": "./dist/css/index.js"
+		},
+		"./clone": {
+			"import": "./dist/clone/index.js"
+		},
+		"./bezier": {
+			"import": "./dist/bezier/index.js"
+		},
+		"./bezier/beziers": {
+			"import": "./dist/bezier/beziers/index.js"
+		},
+		"./async": {
+			"import": "./dist/async/index.js"
+		},
+		"./animation": {
+			"import": "./dist/animation/index.js"
 		}
 	}
 }
