@@ -38,5 +38,5 @@ export const deduce = <
 		}
 	})(out);
 
-	return supply as unknown as Supply<T>;
+	return supply as Supply<ReturnType<Callback>>;
 };
