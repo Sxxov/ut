@@ -1,34 +1,34 @@
 import { clamp01 } from '../math/clamp01.js';
+import { Store } from '../store/Store.js';
 import type { IAnimatable } from './IAnimatable.js';
 import type { Tween } from './Tween.js';
 
 export class Composition implements IAnimatable {
 	private progress = 0;
 	private rafHandle: number | undefined = undefined;
+	private resolve: (() => void) | undefined = undefined;
 
-	#isPlaying = false;
-	public get isPlaying() {
-		return this.#isPlaying;
-	}
+	#isPlaying = new Store(false);
+	public readonly isPlaying = this.#isPlaying.supply;
 
 	public get duration() {
 		return this.timeline.reduce(
-			(duration, layer) =>
-				Math.max(duration, layer.delay + layer.tween.duration),
+			(duration, { tween, delay = 0 }) =>
+				Math.max(duration, delay + tween.duration),
 			0,
 		);
 	}
 
 	public get length() {
 		return this.timeline.reduce(
-			(length, layer) =>
-				Math.max(length, layer.delay + layer.tween.length),
+			(length, { tween, delay = 0 }) =>
+				Math.max(length, delay + tween.length),
 			0,
 		);
 	}
 
 	constructor(
-		public readonly timeline: { tween: Tween; delay: number }[] = [],
+		public readonly timeline: { tween: Tween; delay?: number }[] = [],
 	) {}
 
 	public add(tween: Tween, delay = 0) {
@@ -48,7 +48,7 @@ export class Composition implements IAnimatable {
 		);
 	}
 
-	public play(direction = 1) {
+	public async play(direction = 1) {
 		if (this.rafHandle) cancelAnimationFrame(this.rafHandle);
 		if (direction === 0) return;
 
@@ -56,7 +56,11 @@ export class Composition implements IAnimatable {
 		let startTime: number;
 		let endTime: number;
 
-		this.#isPlaying = true;
+		this.#isPlaying.set(true);
+
+		const promise = new Promise<void>((resolve) => {
+			this.resolve = resolve;
+		});
 
 		for (const layer of this.timeline) layer.tween.pause();
 
@@ -78,12 +82,14 @@ export class Composition implements IAnimatable {
 
 			if (time < endTime) this.rafHandle = requestAnimationFrame(step);
 			else {
-				this.pause();
 				this.seekToProgress(direction > 0 ? 1 : 0);
+				this.pause();
 			}
 		};
 
 		this.rafHandle = requestAnimationFrame(step);
+
+		await promise;
 	}
 
 	public pause(): void {
@@ -92,7 +98,9 @@ export class Composition implements IAnimatable {
 			this.rafHandle = undefined;
 		}
 
-		this.#isPlaying = false;
+		this.#isPlaying.set(false);
+		this.resolve?.();
+		this.resolve = undefined;
 	}
 
 	public stop(): void {
@@ -102,7 +110,7 @@ export class Composition implements IAnimatable {
 	}
 
 	public seekToProgress(progress: number): void {
-		for (const { tween, delay } of this.timeline) {
+		for (const { tween, delay = 0 } of this.timeline) {
 			const startTime = delay;
 			const startProgress = startTime / this.duration;
 			const endTime = delay + tween.duration;

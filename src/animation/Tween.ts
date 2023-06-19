@@ -8,15 +8,12 @@ import type { IAnimatable } from './IAnimatable.js';
 export class Tween extends Supply<number> implements IAnimatable {
 	private progress = 0;
 	private rafHandle: number | undefined = undefined;
+	private resolve: (() => void) | undefined = undefined;
 
-	#isPlaying = false;
-	public get isPlaying() {
-		return this.#isPlaying;
-	}
+	#isPlaying = new Store(false);
+	public readonly isPlaying = this.#isPlaying.supply;
 
-	public get length() {
-		return this.end - this.start;
-	}
+	public readonly length: number;
 
 	constructor(
 		public readonly start: number,
@@ -25,9 +22,11 @@ export class Tween extends Supply<number> implements IAnimatable {
 		public readonly bezier = bezierLinear,
 	) {
 		super(new Store(start));
+
+		this.length = Math.abs(end - start);
 	}
 
-	public play(direction = 1) {
+	public async play(direction = 1) {
 		if (this.rafHandle) cancelAnimationFrame(this.rafHandle);
 		if (direction === 0) return;
 
@@ -35,7 +34,11 @@ export class Tween extends Supply<number> implements IAnimatable {
 		let startTime: number;
 		let endTime: number;
 
-		this.#isPlaying = true;
+		this.#isPlaying.set(true);
+
+		const promise = new Promise<void>((resolve) => {
+			this.resolve = resolve;
+		});
 
 		const step = (time: DOMHighResTimeStamp) => {
 			if (!this.#isPlaying) return;
@@ -55,12 +58,14 @@ export class Tween extends Supply<number> implements IAnimatable {
 
 			if (time < endTime) this.rafHandle = requestAnimationFrame(step);
 			else {
-				this.pause();
 				this.seekToProgress(direction > 0 ? 1 : 0);
+				this.pause();
 			}
 		};
 
 		this.rafHandle = requestAnimationFrame(step);
+
+		await promise;
 	}
 
 	public pause() {
@@ -69,7 +74,9 @@ export class Tween extends Supply<number> implements IAnimatable {
 			this.rafHandle = undefined;
 		}
 
-		this.#isPlaying = false;
+		this.#isPlaying.set(false);
+		this.resolve?.();
+		this.resolve = undefined;
 	}
 
 	public stop() {
