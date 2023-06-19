@@ -2,7 +2,7 @@
 	"name": "@sxxov/ut",
 	"version": "2.0.0",
 	"description": "",
-	"main": "",
+	"main": "./dist/index.js",
 	"type": "module",
 	"scripts": {
 		"dev": "tsc --watch --preserveWatchOutput",
@@ -43,6 +43,9 @@
 	},
 	"dependencies": {},
 	"exports": {
+		".": {
+			"import": "./dist/index.js"
+		},
 		"./viewport": {
 			"import": "./dist/viewport/index.js"
 		},
