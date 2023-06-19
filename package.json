@@ -1,6 +1,6 @@
 {
 	"name": "@sxxov/ut",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"description": "",
 	"main": "",
 	"type": "module",
@@ -9,8 +9,13 @@
 		"build": "tsc --build --clean && tsc",
 		"prepublishOnly": "npm run build"
 	},
-	"keywords": [],
-	"author": "",
+	"keywords": ["utilities", "utility", "util", "utils", "functional", "errors"],
+	"author": "sxxov",
+	"homepage": "https://github.com/sxxov/ut#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sxxov/ut.git"
+	},
 	"license": "MIT",
 	"publishConfig": {
 		"access": "public"
