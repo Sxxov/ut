@@ -1,6 +1,6 @@
 {
 	"name": "@sxxov/ut",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "",
 	"main": "",
 	"type": "module",
@@ -9,7 +9,14 @@
 		"build": "tsc --build --clean && tsc",
 		"prepublishOnly": "npm run build"
 	},
-	"keywords": ["utilities", "utility", "util", "utils", "functional", "errors"],
+	"keywords": [
+		"utilities",
+		"utility",
+		"util",
+		"utils",
+		"functional",
+		"errors"
+	],
 	"author": "sxxov",
 	"homepage": "https://github.com/sxxov/ut#readme",
 	"repository": {
