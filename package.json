@@ -88,6 +88,9 @@
 		"./clone": {
 			"import": "./dist/clone/index.js"
 		},
+		"./case": {
+			"import": "./dist/case/index.js"
+		},
 		"./bezier": {
 			"import": "./dist/bezier/index.js"
 		},
