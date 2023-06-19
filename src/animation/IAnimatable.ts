@@ -1,7 +1,5 @@
-import { type IReadableStore } from '../store/IReadableStore.js';
-
 export interface IAnimatable {
-	readonly isPlaying: IReadableStore<boolean>;
+	readonly isPlaying: boolean;
 	readonly duration: number;
 	readonly length: number;
 	play(direction: number): Promise<void>;

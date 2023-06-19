@@ -10,10 +10,14 @@ export class Tween extends Supply<number> implements IAnimatable {
 	private rafHandle: number | undefined = undefined;
 	private resolve: (() => void) | undefined = undefined;
 
-	#isPlaying = new Store(false);
-	public readonly isPlaying = this.#isPlaying.supply;
+	#isPlaying = false;
+	public get isPlaying() {
+		return this.#isPlaying;
+	}
 
-	public readonly length: number;
+	public get length() {
+		return this.end - this.start;
+	}
 
 	constructor(
 		public readonly start: number,
@@ -22,8 +26,6 @@ export class Tween extends Supply<number> implements IAnimatable {
 		public readonly bezier = bezierLinear,
 	) {
 		super(new Store(start));
-
-		this.length = Math.abs(end - start);
 	}
 
 	public async play(direction = 1) {
@@ -34,7 +36,7 @@ export class Tween extends Supply<number> implements IAnimatable {
 		let startTime: number;
 		let endTime: number;
 
-		this.#isPlaying.set(true);
+		this.#isPlaying = true;
 
 		const promise = new Promise<void>((resolve) => {
 			this.resolve = resolve;
@@ -74,7 +76,7 @@ export class Tween extends Supply<number> implements IAnimatable {
 			this.rafHandle = undefined;
 		}
 
-		this.#isPlaying.set(false);
+		this.#isPlaying = false;
 		this.resolve?.();
 		this.resolve = undefined;
 	}

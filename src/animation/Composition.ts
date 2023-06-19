@@ -1,5 +1,4 @@
 import { clamp01 } from '../math/clamp01.js';
-import { Store } from '../store/Store.js';
 import type { IAnimatable } from './IAnimatable.js';
 import type { Tween } from './Tween.js';
 
@@ -8,8 +7,10 @@ export class Composition implements IAnimatable {
 	private rafHandle: number | undefined = undefined;
 	private resolve: (() => void) | undefined = undefined;
 
-	#isPlaying = new Store(false);
-	public readonly isPlaying = this.#isPlaying.supply;
+	#isPlaying = false;
+	public get isPlaying() {
+		return this.#isPlaying;
+	}
 
 	public get duration() {
 		return this.timeline.reduce(
@@ -56,7 +57,7 @@ export class Composition implements IAnimatable {
 		let startTime: number;
 		let endTime: number;
 
-		this.#isPlaying.set(true);
+		this.#isPlaying = true;
 
 		const promise = new Promise<void>((resolve) => {
 			this.resolve = resolve;
@@ -98,7 +99,7 @@ export class Composition implements IAnimatable {
 			this.rafHandle = undefined;
 		}
 
-		this.#isPlaying.set(false);
+		this.#isPlaying = false;
 		this.resolve?.();
 		this.resolve = undefined;
 	}
