@@ -1,0 +1,20 @@
+{
+	"[svelte]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "svelte.svelte-vscode",
+	},
+	"[postcss]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "stylelint.vscode-stylelint",
+	},
+	"svelte.plugin.svelte.format.enable": true,
+	"svelte.plugin.svelte.defaultScriptLanguage": "ts",
+	"editor.colorDecorators": true,
+	"typescript.tsdk": "node_modules\\typescript\\lib",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true,
+		"source.fixAll.stylelint": true,
+	},
+	"typescript.preferences.importModuleSpecifierEnding": "minimal",
+	"task.allowAutomaticTasks": "on",
+}

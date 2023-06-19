@@ -1,0 +1,47 @@
+{
+	"include": [
+		// ensure types/ load before src/, so that overrides will
+		// be applied over triple-slash/side-effect type imports
+		// in deps
+		"types/**/*", 
+		"src/**/*", 
+		"**/.*rc.cjs",
+		"**/*.config.cjs",
+		"**/*.config.js",
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+	],
+	"compilerOptions": {
+		"outDir": "dist",
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
+		"types": [],
+		"lib": [
+			"esnext",
+			"dom",
+			"dom.iterable",
+		],
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"module": "esnext",
+		"target": "esnext",
+		"moduleResolution": "nodenext",
+		"noEmit": false,
+		"strict": true,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"useDefineForClassFields": false,
+		"allowSyntheticDefaultImports": true,
+		"verbatimModuleSyntax": false,
+		"experimentalDecorators": true,
+		"noImplicitOverride": true,
+		"forceConsistentCasingInFileNames": true,
+		"useUnknownInCatchVariables": true,
+		"exactOptionalPropertyTypes": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+	}
+}
