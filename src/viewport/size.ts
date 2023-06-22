@@ -1,23 +1,20 @@
 import { Store } from '../store/Store.js';
+import { type ISize } from './ISize.js';
 
-interface IDimens {
-	height: number;
-	width: number;
-}
 const hasWindow = typeof window !== String(undefined);
-const initialDimens: IDimens = hasWindow
+const initialSize: ISize = hasWindow
 	? { height: window.innerHeight, width: window.innerWidth }
 	: { height: 0, width: 0 };
 
-export const dimensions = new Store({
-	inner: initialDimens,
-	outer: initialDimens,
-	client: initialDimens,
+export const size = new Store({
+	inner: initialSize,
+	outer: initialSize,
+	client: initialSize,
 	hasTouch: false,
 });
-export const inner = new Store<IDimens>(initialDimens);
-export const outer = new Store<IDimens>(initialDimens);
-export const client = new Store<IDimens>(initialDimens);
+export const inner = new Store<ISize>(initialSize);
+export const outer = new Store<ISize>(initialSize);
+export const client = new Store<ISize>(initialSize);
 export const hasTouch = new Store<boolean>(false);
 
 const onResize = () => {
@@ -35,7 +32,7 @@ const onResize = () => {
 	});
 	hasTouch.set('ontouchstart' in document.documentElement);
 
-	dimensions.set({
+	size.set({
 		inner: inner.get(),
 		outer: outer.get(),
 		client: client.get(),
