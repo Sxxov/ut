@@ -106,4 +106,14 @@ export class Store<T = unknown> implements IReadableStore<T> {
 		) as boolean;
 		/* eslint-enable */
 	}
+
+	public derive<R>(fn: (v: T) => R, onStarted?: Store<R>['onStarted']) {
+		const store = new Store(fn(this.value), onStarted);
+
+		this.subscribeLazy((v) => {
+			store.set(fn(v));
+		});
+
+		return store;
+	}
 }

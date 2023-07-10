@@ -33,4 +33,8 @@ export class Supply<T> implements IReadableStore<T> {
 	public destroy() {
 		this.store.destroy();
 	}
+
+	public derive<R>(fn: (v: T) => R, onStarted?: Store<R>['onStarted']) {
+		return this.store.derive(fn, onStarted).supply;
+	}
 }

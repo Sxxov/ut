@@ -14,4 +14,5 @@ export interface IReadableStore<T> {
 	): TUnsubscriber;
 	trigger(): void;
 	destroy(): void;
+	derive<R>(fn: (v: T) => R): IReadableStore<R>;
 }
