@@ -108,10 +108,7 @@ export class Store<T = unknown> implements IReadableStore<T> {
 	}
 
 	public derive<R>(fn: (v: T) => R, onStarted?: Store<R>['onStarted']) {
-		const store = new (this.constructor as typeof Store)(
-			fn(this.value),
-			onStarted,
-		);
+		const store = new Store(fn(this.value), onStarted);
 
 		this.subscribeLazy((v) => {
 			store.set(fn(v));
