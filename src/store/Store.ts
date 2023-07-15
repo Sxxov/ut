@@ -75,7 +75,7 @@ export class Store<T = unknown> implements IReadableStore<T> {
 
 		const shouldInvokeStarted = this.subscriberAndInvalidators.size <= 1;
 		if (shouldInvokeStarted && this.onStarted)
-			this.onStopped = this.onStarted(this.set);
+			this.onStopped = this.onStarted(this.set.bind(this));
 
 		return (() => {
 			this.subscriberAndInvalidators.delete(subscriberAndInvalidator);
