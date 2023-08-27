@@ -93,8 +93,12 @@ export class ShapedArrayStore<
 		return result;
 	}
 
-	public splice(start: number, deleteCount?: number): TArrayElement<Shape>[] {
-		const result = this.value.splice(start, deleteCount);
+	public splice(
+		start: number,
+		deleteCount = 0,
+		...items: TArrayElement<Shape>[]
+	): TArrayElement<Shape>[] {
+		const result = this.value.splice(start, deleteCount, ...items);
 
 		this.trigger();
 
