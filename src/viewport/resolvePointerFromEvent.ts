@@ -1,7 +1,6 @@
 import { type Point } from './Point.js';
 
-/** @deprecated Use `pointer*` events */
-export const resolveEventClientPoint = (
+export const resolvePointerFromEvent = (
 	event: MouseEvent | TouchEvent,
 ): Point =>
 	typeof TouchEvent !== 'undefined' && event instanceof TouchEvent

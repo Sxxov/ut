@@ -3,4 +3,4 @@ export * from './Ltrb.js';
 export * from './Point.js';
 export * from './Rect.js';
 export * from './Size.js';
-export * from './resolveEventClientPoint.js';
+export * from './resolvePointerFromEvent.js';
