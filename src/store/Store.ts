@@ -25,14 +25,14 @@ export class Store<T = unknown> implements ReadableStore<T> {
 	constructor(protected value: T, private onStarted?: StartStopNotifier<T>) {}
 
 	public set(v: T) {
-		if (!Store.neq(this.value, v)) return;
+		if (!Store.neq(this.get(), v)) return;
 
 		this.value = v;
 		this.trigger();
 	}
 
 	public update(fn: Updater<T>) {
-		this.set(fn(this.value));
+		this.set(fn(this.get()));
 	}
 
 	public get() {
@@ -46,14 +46,14 @@ export class Store<T = unknown> implements ReadableStore<T> {
 			invalidator?.();
 
 		for (const [subscriber] of this.subscriberAndInvalidators)
-			subscriber(this.value);
+			subscriber(this.get());
 	}
 
 	public subscribe(
 		onChanged: Subscriber<T>,
 		onInvalidate: Invalidator | undefined = undefined,
 	) {
-		onChanged(this.value);
+		onChanged(this.get());
 		return this.subscribeLazy(onChanged, onInvalidate);
 	}
 
@@ -103,7 +103,7 @@ export class Store<T = unknown> implements ReadableStore<T> {
 	}
 
 	public derive<R>(fn: (v: T) => R, onStarted?: Store<R>['onStarted']) {
-		const store = new Store(fn(this.value), onStarted);
+		const store = new Store(fn(this.get()), onStarted);
 
 		this.subscribeLazy((v) => {
 			store.set(fn(v));
