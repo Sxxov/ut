@@ -1,4 +1,4 @@
-import type { TCss } from './TCss.js';
+export type Css = string | number;
 
 /**
  * Converts a number or a number string to a CSS value.
@@ -13,7 +13,7 @@ import type { TCss } from './TCss.js';
  * @param unit The unit to append to the number. Defaults to `px`.
  * @returns A CSS value.
  */
-export const css = (value: TCss, unit = 'px') => {
+export const css = (value: Css, unit = 'px') => {
 	/**
 	 * If the value is a number or a number string (not NaN when passed through
 	 * the Number ctor), append the unit and return it.

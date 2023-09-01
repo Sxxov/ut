@@ -1,20 +1,19 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-export const TraverseBreak = Symbol('traverse break');
-export const TraverseContinue = Symbol('traverse continue');
+export const traverseBreak = Symbol('traverse break');
+export const traverseContinue = Symbol('traverse continue');
 
-type TMixin<T> = T extends void
+type Mixin<T> = T extends void
 	? {
-			BREAK(): never;
+			break(): never;
 	  }
 	: {
-			BREAK(ret: T): never;
+			break(ret: T): never;
 	  };
 
-const mixin: TMixin<any> = {
-	BREAK(v) {
+const mixin: Mixin<any> = {
+	break(v) {
 		throw {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			[TraverseBreak]: v,
+			[traverseBreak]: v,
 		};
 	},
 };
@@ -26,11 +25,11 @@ export const generateTraverser = <T extends (...args: any) => any>(impl: T) => {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
 				return impl(...args);
 			} catch (err) {
-				if (TraverseBreak in (err as any)) return;
+				if (traverseBreak in (err as any)) return;
 
 				throw err;
 			}
-		}) as unknown as T & TMixin<ReturnType<T>>,
+		}) as unknown as T & Mixin<ReturnType<T>>,
 		mixin,
 	);
 };

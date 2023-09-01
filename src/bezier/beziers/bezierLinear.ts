@@ -1,5 +1,5 @@
-import type { IBezier } from '../Bezier.js';
+import type { ReadableBezier } from '../Bezier.js';
 
-export const bezierLinear: IBezier = {
+export const bezierLinear: ReadableBezier = {
 	at: (t) => t,
 };

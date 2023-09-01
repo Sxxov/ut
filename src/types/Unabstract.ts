@@ -1,4 +1,4 @@
-export type TUnabstract<
+export type Unabstract<
 	T extends abstract new (...args: any[]) => any,
 	Args extends any[] = ConstructorParameters<T>,
 	Return = InstanceType<T>,

@@ -4,13 +4,13 @@
 		@typescript-eslint/no-unsafe-return,
 */
 
-import type { TArrayElement } from '../../types/TArrayElement.js';
+import type { ArrayElement } from '../../types/ArrayElement.js';
 import { ExtensibleStore } from './ExtensibleStore.js';
 
-export type TShapedArrayStorify<T extends any[]> = ShapedArrayStore<T>;
+export type ShapedArrayStorify<T extends any[]> = ShapedArrayStore<T>;
 
 // @ts-expect-error shape will refer to the value, which is safe
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 export interface ShapedArrayStore<Shape extends any[] = unknown[]>
 	extends ExtensibleStore<Shape>,
 		Shape {}
@@ -26,7 +26,7 @@ export class ShapedArrayStore<
 		return this.proxy;
 	}
 
-	public [Symbol.iterator](): IterableIterator<TArrayElement<Shape>> {
+	public [Symbol.iterator](): IterableIterator<ArrayElement<Shape>> {
 		return this.value.values();
 	}
 
@@ -40,7 +40,7 @@ export class ShapedArrayStore<
 		this.trigger();
 	}
 
-	public remove(...items: TArrayElement<Shape>[]): void {
+	public remove(...items: ArrayElement<Shape>[]): void {
 		items.forEach((item) => {
 			this.value.splice(this.value.indexOf(item), 1);
 		});
@@ -61,7 +61,7 @@ export class ShapedArrayStore<
 		return this.value[index];
 	}
 
-	public push(...items: TArrayElement<Shape>[]): number {
+	public push(...items: ArrayElement<Shape>[]): number {
 		const result = this.value.push(...items);
 
 		this.trigger();
@@ -69,7 +69,7 @@ export class ShapedArrayStore<
 		return result;
 	}
 
-	public pop(): TArrayElement<Shape> | undefined {
+	public pop(): ArrayElement<Shape> | undefined {
 		const result = this.value.pop();
 
 		this.trigger();
@@ -77,7 +77,7 @@ export class ShapedArrayStore<
 		return result;
 	}
 
-	public shift(): TArrayElement<Shape> | undefined {
+	public shift(): ArrayElement<Shape> | undefined {
 		const result = this.value.shift();
 
 		this.trigger();
@@ -85,7 +85,7 @@ export class ShapedArrayStore<
 		return result;
 	}
 
-	public unshift(...items: TArrayElement<Shape>[]): number {
+	public unshift(...items: ArrayElement<Shape>[]): number {
 		const result = this.value.unshift(...items);
 
 		this.trigger();
@@ -96,8 +96,8 @@ export class ShapedArrayStore<
 	public splice(
 		start: number,
 		deleteCount = 0,
-		...items: TArrayElement<Shape>[]
-	): TArrayElement<Shape>[] {
+		...items: ArrayElement<Shape>[]
+	): ArrayElement<Shape>[] {
 		const result = this.value.splice(start, deleteCount, ...items);
 
 		this.trigger();
@@ -105,7 +105,7 @@ export class ShapedArrayStore<
 		return result;
 	}
 
-	public reverse(): TArrayElement<Shape>[] {
+	public reverse(): ArrayElement<Shape>[] {
 		const result = this.value.reverse();
 
 		this.trigger();
@@ -114,10 +114,7 @@ export class ShapedArrayStore<
 	}
 
 	public sort(
-		compareFn?: (
-			a: TArrayElement<Shape>,
-			b: TArrayElement<Shape>,
-		) => number,
+		compareFn?: (a: ArrayElement<Shape>, b: ArrayElement<Shape>) => number,
 	): this {
 		this.value.sort(compareFn);
 

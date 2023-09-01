@@ -1,4 +1,4 @@
-export interface IAnimatable {
+export interface Animatable {
 	readonly isPlaying: boolean;
 	readonly duration: number;
 	readonly length: number;

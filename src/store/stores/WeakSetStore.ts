@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { ExtensibleStore } from './ExtensibleStore.js';
 
-export type TWeakSetStorify<T extends Set<any>> = T extends WeakSet<infer U>
+export type WeakSetStorify<T extends WeakSet<any>> = T extends WeakSet<infer U>
 	? WeakSetStore<U>
 	: never;
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface WeakSetStore<T extends object = object>
 	extends ExtensibleStore<WeakSet<T>>,
 		Set<T> {}

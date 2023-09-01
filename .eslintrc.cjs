@@ -194,10 +194,10 @@ const CommonOverrideRules = {
 			prefix: ['is', 'has', 'can', 'should', 'will', 'did'],
 		},
 		{
-			// Interface name should be prefixed with `I`.
+			// Interface name should not be prefixed with `I`.
 			selector: 'interface',
+			filter: /^(?!I)[A-Z]/.source,
 			format: ['StrictPascalCase'],
-			prefix: ['I'],
 		},
 		{
 			// Type parameter name should either be `T` or a descriptive name.
@@ -206,9 +206,10 @@ const CommonOverrideRules = {
 			format: ['StrictPascalCase'],
 		},
 		{
+			// Type name should not be prefixed with `T`.
 			selector: 'typeAlias',
+			filter: /^(?!T)[A-Z]/.source,
 			format: ['StrictPascalCase'],
-			prefix: ['T'],
 		},
 		// Allow these in non-camel-case when quoted.
 		{

@@ -1,8 +1,9 @@
-import { type IPoint } from './IPoint.js';
+import { type Point } from './Point.js';
 
+/** @deprecated Use `pointer*` events */
 export const resolveEventClientPoint = (
 	event: MouseEvent | TouchEvent,
-): IPoint =>
+): Point =>
 	typeof TouchEvent !== 'undefined' && event instanceof TouchEvent
 		? {
 				x:

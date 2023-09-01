@@ -1,9 +1,9 @@
-import type { TIfEquals } from '../types/TIfEquals.js';
+import type { IfEquals } from '../types/IfEquals.js';
 
-type TOmitableProps<T extends Record<string, any>> = Pick<
+type OmitableProps<T extends Record<string, any>> = Pick<
 	T,
 	{
-		[k in keyof T]: TIfEquals<
+		[k in keyof T]: IfEquals<
 			{ [_ in k]: T[k] },
 			{ [_ in k]-?: T[k] },
 			never,
@@ -11,11 +11,11 @@ type TOmitableProps<T extends Record<string, any>> = Pick<
 		>;
 	}[keyof T]
 >;
-type TUnomitProps<
+type UnomitProps<
 	Target extends Record<string, any>,
 	Source extends Record<string, any>,
 > = {
-	[k in keyof Source]: TIfEquals<
+	[k in keyof Source]: IfEquals<
 		{ [_ in k]: Source[k] },
 		{ [_ in k]-?: Source[k] },
 		// @ts-expect-error force k to index Target
@@ -27,6 +27,7 @@ type TUnomitProps<
 const from = function <
 	This extends new (thing: Record<string, any>) => Record<string, any>,
 >(this: This, thing: any) {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 	return new this(thing);
 };
 
@@ -52,10 +53,10 @@ export const Thing = function (this: typeof Thing | undefined, thing: any) {
 } as {
 	new <T extends Record<string, any>>(thing: T): T;
 	<T extends Record<string, any>>(): <
-		DefaultProps extends new () => TOmitableProps<T>,
+		DefaultProps extends new () => OmitableProps<T>,
 	>(
 		defaultProps: DefaultProps,
-	) => (abstract new (thing: T) => TUnomitProps<
+	) => (abstract new (thing: T) => UnomitProps<
 		T,
 		InstanceType<DefaultProps>
 	>) & {

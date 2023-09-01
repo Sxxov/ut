@@ -1,4 +1,4 @@
-import { type IPlainError } from './IPlainError.js';
+import { type PlainError } from './PlainError.js';
 
 export class ClientError extends Error {
 	constructor(message = 'No message provided, an error with errors?') {
@@ -10,7 +10,7 @@ export class ClientError extends Error {
 		(Error as any).captureStackTrace?.(this, this.constructor);
 	}
 
-	public static from<T extends ClientError>(obj: IPlainError | Error): T {
+	public static from<T extends ClientError>(obj: PlainError | Error): T {
 		const clientError = new this();
 
 		clientError.name = obj.name;
@@ -20,7 +20,7 @@ export class ClientError extends Error {
 		return clientError as T;
 	}
 
-	public toPlainObject(): IPlainError {
+	public toPlainObject(): PlainError {
 		return {
 			name: this.name,
 			message: this.message,

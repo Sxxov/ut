@@ -1,10 +1,9 @@
 import { ExtensibleStore } from './ExtensibleStore.js';
 
-export type TSetStorify<T extends Set<any>> = T extends Set<infer U>
+export type SetStorify<T extends Set<any>> = T extends Set<infer U>
 	? SetStore<U>
 	: never;
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface SetStore<T = unknown>
 	extends ExtensibleStore<Set<T>>,
 		Set<T> {}

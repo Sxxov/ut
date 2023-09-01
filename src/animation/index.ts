@@ -1,3 +1,3 @@
 export * from './Composition.js';
-export * from './IAnimatable.js';
+export * from './Animatable.js';
 export * from './Tween.js';

@@ -1,8 +1,8 @@
 import { clamp01 } from '../math/clamp01.js';
-import type { IAnimatable } from './IAnimatable.js';
+import type { Animatable } from './Animatable.js';
 import type { Tween } from './Tween.js';
 
-export class Composition implements IAnimatable {
+export class Composition implements Animatable {
 	private progress = 0;
 	private rafHandle: number | undefined = undefined;
 	private resolve: (() => void) | undefined = undefined;

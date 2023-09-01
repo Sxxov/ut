@@ -1,11 +1,11 @@
 import type {
-	IReadableStore,
-	TInvalidator,
-	TSubscriber,
-} from './IReadableStore.js';
+	ReadableStore,
+	Invalidator,
+	Subscriber,
+} from './ReadableStore.js';
 import type { Store } from './Store.js';
 
-export class Supply<T> implements IReadableStore<T> {
+export class Supply<T> implements ReadableStore<T> {
 	constructor(protected store: Store<T>) {}
 
 	public get() {
@@ -13,15 +13,15 @@ export class Supply<T> implements IReadableStore<T> {
 	}
 
 	public subscribe(
-		onChanged: TSubscriber<T>,
-		onInvalidate: TInvalidator | undefined = undefined,
+		onChanged: Subscriber<T>,
+		onInvalidate: Invalidator | undefined = undefined,
 	) {
 		return this.store.subscribe(onChanged, onInvalidate);
 	}
 
 	public subscribeLazy(
-		onChanged: TSubscriber<T>,
-		onInvalidate?: TInvalidator | undefined,
+		onChanged: Subscriber<T>,
+		onInvalidate?: Invalidator | undefined,
 	) {
 		return this.store.subscribeLazy(onChanged, onInvalidate);
 	}

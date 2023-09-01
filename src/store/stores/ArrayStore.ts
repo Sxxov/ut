@@ -1,6 +1,6 @@
 import { ShapedArrayStore } from './ShapedArrayStore.js';
 
-export type TArrayStorify<T extends any[]> = T extends (infer U)[]
+export type ArrayStorify<T extends any[]> = T extends (infer U)[]
 	? ArrayStore<U>
 	: never;
 

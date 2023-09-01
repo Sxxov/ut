@@ -3,7 +3,7 @@ import { clamp01 } from '../math/clamp01.js';
 import { map } from '../math/map.js';
 import { Store } from '../store/Store.js';
 import { Supply } from '../store/Supply.js';
-import type { IAnimatable } from './IAnimatable.js';
+import type { Animatable } from './Animatable.js';
 
 // jsdoc
 import type { Composition } from './Composition.js';
@@ -18,7 +18,7 @@ import type { Composition } from './Composition.js';
  * @see {@linkcode Composition} - If you want to compose multiple tweens into
  * one seekable & playable Supply.
  */
-export class Tween extends Supply<number> implements IAnimatable {
+export class Tween extends Supply<number> implements Animatable {
 	/** The current progress of the tween, from 0 to 1. */
 	private progress = 0;
 	/** The return value of {@linkcode requestAnimationFrame} in {@linkcode play}. */

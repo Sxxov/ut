@@ -1,33 +1,28 @@
 // copied from svelte's implementation
 
-import type { IReadableStore } from './IReadableStore.js';
+import type {
+	Invalidator,
+	ReadableStore,
+	StartStopNotifier,
+	Subscriber,
+	SubscriberAndInvalidator,
+	Unsubscriber,
+} from './ReadableStore.js';
+import type { Updater } from './WritableStore.js';
 import { Supply } from './Supply.js';
 
-type TSubscriber<T> = (v: T) => void;
-type TInvalidator = () => void;
-type TSubscriberAndInvalidator<T> = [
-	subscriber: TSubscriber<T>,
-	invalidator: TInvalidator | undefined,
-];
-type TUnsubscriber = () => void;
-type TUpdater<T> = (v: T) => T;
-type TStartStopNotifier<T> = (set: TSubscriber<T>) => TUnsubscriber | undefined;
+export type Storify<T> = T extends infer U ? Store<U> : never;
 
-export type TStorify<T> = T extends infer U ? Store<U> : never;
-
-export class Store<T = unknown> implements IReadableStore<T> {
-	private subscriberAndInvalidators = new Set<TSubscriberAndInvalidator<T>>();
-	private onStopped: TUnsubscriber | undefined = undefined;
+export class Store<T = unknown> implements ReadableStore<T> {
+	private subscriberAndInvalidators = new Set<SubscriberAndInvalidator<T>>();
+	private onStopped: Unsubscriber | undefined = undefined;
 
 	#supply: Supply<T> | undefined = undefined;
 	public get supply() {
 		return (this.#supply ??= new Supply(this));
 	}
 
-	constructor(
-		protected value: T,
-		private onStarted?: TStartStopNotifier<T>,
-	) {}
+	constructor(protected value: T, private onStarted?: StartStopNotifier<T>) {}
 
 	public set(v: T) {
 		if (!Store.neq(this.value, v)) return;
@@ -36,7 +31,7 @@ export class Store<T = unknown> implements IReadableStore<T> {
 		this.trigger();
 	}
 
-	public update(fn: TUpdater<T>) {
+	public update(fn: Updater<T>) {
 		this.set(fn(this.value));
 	}
 
@@ -55,18 +50,18 @@ export class Store<T = unknown> implements IReadableStore<T> {
 	}
 
 	public subscribe(
-		onChanged: TSubscriber<T>,
-		onInvalidate: TInvalidator | undefined = undefined,
+		onChanged: Subscriber<T>,
+		onInvalidate: Invalidator | undefined = undefined,
 	) {
 		onChanged(this.value);
 		return this.subscribeLazy(onChanged, onInvalidate);
 	}
 
 	public subscribeLazy(
-		onChanged: TSubscriber<T>,
-		onInvalidate: TInvalidator | undefined = undefined,
+		onChanged: Subscriber<T>,
+		onInvalidate: Invalidator | undefined = undefined,
 	) {
-		const subscriberAndInvalidator: TSubscriberAndInvalidator<T> = [
+		const subscriberAndInvalidator: SubscriberAndInvalidator<T> = [
 			onChanged,
 			onInvalidate,
 		];
@@ -86,7 +81,7 @@ export class Store<T = unknown> implements IReadableStore<T> {
 				this.onStopped();
 				this.onStopped = undefined;
 			}
-		}) as TUnsubscriber;
+		}) as Unsubscriber;
 	}
 
 	public destroy() {

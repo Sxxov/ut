@@ -3,6 +3,8 @@
  * transition easing function by Gaëtan Renaudeau 2014 - 2015 – MIT License
  */
 
+import type { ReadableBezier } from './ReadableBezier.js';
+
 const enum BezierConstants {
 	NEWTON_ITERATIONS = 4,
 	NEWTON_MIN_SLOPE = 0.001,
@@ -12,11 +14,7 @@ const enum BezierConstants {
 	SAMPLE_STEP_SIZE = 0.1,
 }
 
-export interface IBezier {
-	at(v: number): number;
-}
-
-export class Bezier implements IBezier {
+export class Bezier implements ReadableBezier {
 	private sampleValues: Float32Array | number[] =
 		typeof Float32Array === 'function'
 			? new Float32Array(BezierConstants.SPLINE_TABLE_SIZE)
