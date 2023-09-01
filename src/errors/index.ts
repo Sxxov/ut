@@ -4,7 +4,6 @@ export * from './IllegalAssignmentError.js';
 export * from './IllegalInvocationError.js';
 export * from './IllegalStateError.js';
 export * from './IncorrectUsageError.js';
-export * from './PlainError.js';
 export * from './JsonParseError.js';
 export * from './NetworkError.js';
 export * from './NoMatchError.js';
