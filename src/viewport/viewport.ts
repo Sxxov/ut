@@ -6,7 +6,7 @@ const initialSize: Size = hasWindow
 	? { height: window.innerHeight, width: window.innerWidth }
 	: { height: 0, width: 0 };
 
-export const size = new Store({
+export const viewport = new Store({
 	inner: initialSize,
 	outer: initialSize,
 	client: initialSize,
@@ -32,7 +32,7 @@ const onResize = () => {
 	});
 	hasTouch.set('ontouchstart' in document.documentElement);
 
-	size.set({
+	viewport.set({
 		inner: inner.get(),
 		outer: outer.get(),
 		client: client.get(),
