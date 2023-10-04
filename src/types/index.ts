@@ -8,3 +8,5 @@ export * from './IterableValues.js';
 export * from './IteratorReturnValue.js';
 export * from './SvgString.js';
 export * from './Unabstract.js';
+export * from './Unreadonly.js';
+export * from './ReadonlyInvariant.js';
