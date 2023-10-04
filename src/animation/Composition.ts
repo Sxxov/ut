@@ -1,120 +1,61 @@
 import { clamp01 } from '../math/clamp01.js';
-import type { Animatable } from './Animatable.js';
+import { Animatable } from './Animatable.js';
+import { AnimatableIterationCount } from './AnimatableIterationCount.js';
+import { Timeline } from './Timeline.js';
+import type { TimelineAt } from './TimelineAt.js';
+import type { TimelineSegment } from './TimelineSegment.js';
 import type { Tween } from './Tween.js';
 
-export class Composition implements Animatable {
-	private progress = 0;
-	private rafHandle: number | undefined = undefined;
-	private resolve: (() => void) | undefined = undefined;
-
-	#isPlaying = false;
-	public get isPlaying() {
-		return this.#isPlaying;
-	}
+export class Composition extends Animatable {
+	private tweenToSegment = new WeakMap<Tween, TimelineSegment>();
 
 	public get duration() {
-		return this.timeline.reduce(
-			(duration, { tween, delay = 0 }) =>
-				Math.max(duration, delay + tween.duration),
-			0,
-		);
+		return this.timeline.computed.duration;
 	}
 
-	public get length() {
-		return this.timeline.reduce(
-			(length, { tween, delay = 0 }) =>
-				Math.max(length, delay + tween.length),
-			0,
-		);
+	public get start() {
+		return this.timeline.computed.start;
 	}
 
-	constructor(
-		public readonly timeline: { tween: Tween; delay?: number }[] = [],
-	) {}
-
-	public add(tween: Tween, delay = 0) {
-		this.timeline.push({ tween, delay });
+	public get end() {
+		return this.timeline.computed.end;
 	}
 
-	public addIdentity(tween: Tween, delay = 0) {
-		this.add(tween, delay);
-
-		return tween;
+	constructor(public readonly timeline: Timeline = new Timeline()) {
+		super();
 	}
 
-	public delete(tween: Tween) {
-		this.timeline.splice(
-			this.timeline.findIndex((layer) => layer.tween === tween),
-			1,
-		);
+	public add(tween: Tween, at: TimelineAt) {
+		const segment: TimelineSegment = { tween, at };
+		this.tweenToSegment.set(tween, segment);
+		this.timeline.add(segment);
+
+		return this;
 	}
 
-	public async play(direction = 1) {
-		if (this.rafHandle) cancelAnimationFrame(this.rafHandle);
-		if (direction === 0) return;
+	public remove(tween: Tween) {
+		const segment = this.tweenToSegment.get(tween);
+		if (segment) this.timeline.remove(segment);
 
-		const { progress: initialProgress } = this;
-		let startTime: number;
-		let endTime: number;
-
-		this.#isPlaying = true;
-
-		const promise = new Promise<void>((resolve) => {
-			this.resolve = resolve;
-		});
-
-		for (const layer of this.timeline) layer.tween.pause();
-
-		const step = (time: DOMHighResTimeStamp) => {
-			if (!this.#isPlaying) return;
-
-			startTime ??= time;
-			endTime ??=
-				startTime +
-				this.duration *
-					(direction > 0 ? 1 - initialProgress : initialProgress);
-
-			this.seekToProgress(
-				clamp01(
-					initialProgress +
-						((time - startTime) / this.duration) * direction,
-				),
-			);
-
-			if (time < endTime) this.rafHandle = requestAnimationFrame(step);
-			else {
-				this.seekToProgress(direction > 0 ? 1 : 0);
-				this.pause();
-			}
-		};
-
-		this.rafHandle = requestAnimationFrame(step);
-
-		await promise;
+		return this;
 	}
 
-	public pause(): void {
-		if (this.rafHandle) {
-			cancelAnimationFrame(this.rafHandle);
-			this.rafHandle = undefined;
-		}
+	public override async play(
+		direction = 1,
+		iterationCount:
+			| AnimatableIterationCount
+			| number = AnimatableIterationCount.ONCE,
+	) {
+		for (const segment of this.timeline.segments) segment.tween.pause();
 
-		this.#isPlaying = false;
-		this.resolve?.();
-		this.resolve = undefined;
+		return super.play(direction, iterationCount);
 	}
 
-	public stop(): void {
-		this.pause();
-
-		for (const layer of this.timeline) layer.tween.seekToProgress(0);
-	}
-
-	public seekToProgress(progress: number): void {
-		for (const { tween, delay = 0 } of this.timeline) {
-			const startTime = delay;
+	public override seekToProgress(progress: number): void {
+		for (const { tween, time } of this.timeline.computed.segments) {
+			const startTime = time;
 			const startProgress = startTime / this.duration;
-			const endTime = delay + tween.duration;
+			const endTime = time + tween.duration;
 			const endProgress = endTime / this.duration;
 			const tweenProgress = clamp01(
 				(progress - startProgress) / (endProgress - startProgress),
@@ -123,19 +64,12 @@ export class Composition implements Animatable {
 			tween.seekToProgress(tweenProgress);
 		}
 
+		this.store.set(progress * this.range);
 		this.progress = progress;
 	}
 
-	public seekToTime(time: number): void {
-		this.seekToProgress(time / this.duration);
-	}
-
-	public seekToValue(value: number): void {
-		this.seekToProgress(value / this.length);
-	}
-
-	public destroy(): void {
-		for (const layer of this.timeline) layer.tween.destroy();
-		this.timeline.length = 0;
+	public override destroy(): void {
+		super.destroy();
+		this.timeline.destroy();
 	}
 }
