@@ -5,7 +5,7 @@
 
 import type { ReadableBezier } from './ReadableBezier.js';
 
-const enum BezierConstants {
+const enum B {
 	NEWTON_ITERATIONS = 4,
 	NEWTON_MIN_SLOPE = 0.001,
 	SUBDIVISION_PRECISION = 0.0000001,
@@ -17,8 +17,8 @@ const enum BezierConstants {
 export class Bezier implements ReadableBezier {
 	private sampleValues: Float32Array | number[] =
 		typeof Float32Array === 'function'
-			? new Float32Array(BezierConstants.SPLINE_TABLE_SIZE)
-			: new Array(BezierConstants.SPLINE_TABLE_SIZE);
+			? new Float32Array(B.SPLINE_TABLE_SIZE)
+			: new Array(B.SPLINE_TABLE_SIZE);
 
 	constructor(
 		private x1: number,
@@ -28,9 +28,9 @@ export class Bezier implements ReadableBezier {
 	) {
 		if (x1 !== y1 || x2 !== y2)
 			// calculate sample values
-			for (let i = 0; i < BezierConstants.SPLINE_TABLE_SIZE; ++i) {
+			for (let i = 0; i < B.SPLINE_TABLE_SIZE; ++i) {
 				this.sampleValues[i] = Bezier.calcBezier(
-					i * BezierConstants.SAMPLE_STEP_SIZE,
+					i * B.SAMPLE_STEP_SIZE,
 					x1,
 					x2,
 				);
@@ -50,13 +50,13 @@ export class Bezier implements ReadableBezier {
 	private getTforX(aX: number, mX1: number, mX2: number) {
 		let intervalStart = 0;
 		let currentSampleIndex = 1;
-		const FINAL_SAMPLE_INDEX = BezierConstants.SPLINE_TABLE_SIZE - 1;
+		const FINAL_SAMPLE_INDEX = B.SPLINE_TABLE_SIZE - 1;
 
 		while (
 			currentSampleIndex !== FINAL_SAMPLE_INDEX &&
 			this.sampleValues[currentSampleIndex]! <= aX
 		) {
-			intervalStart += BezierConstants.SAMPLE_STEP_SIZE;
+			intervalStart += B.SAMPLE_STEP_SIZE;
 			++currentSampleIndex;
 		}
 
@@ -67,11 +67,10 @@ export class Bezier implements ReadableBezier {
 
 		// interpolate to provide an initial guess for t
 		const dist = (aX - currentSample) / (nextSample - currentSample);
-		const guessForT =
-			intervalStart + dist * BezierConstants.SAMPLE_STEP_SIZE;
+		const guessForT = intervalStart + dist * B.SAMPLE_STEP_SIZE;
 		const initialSlope = Bezier.getSlope(guessForT, mX1, mX2);
 
-		if (initialSlope >= BezierConstants.NEWTON_MIN_SLOPE)
+		if (initialSlope >= B.NEWTON_MIN_SLOPE)
 			return Bezier.newtonRaphsonIterate(aX, guessForT, mX1, mX2);
 
 		if (initialSlope === 0) return guessForT;
@@ -79,7 +78,7 @@ export class Bezier implements ReadableBezier {
 		return Bezier.binarySubdivide(
 			aX,
 			intervalStart,
-			intervalStart + BezierConstants.SAMPLE_STEP_SIZE,
+			intervalStart + B.SAMPLE_STEP_SIZE,
 			mX1,
 			mX2,
 		);
@@ -132,8 +131,8 @@ export class Bezier implements ReadableBezier {
 			if (currentX > 0) aB = currentT;
 			else aA = currentT;
 		} while (
-			Math.abs(currentX) > BezierConstants.SUBDIVISION_PRECISION &&
-			++i < BezierConstants.SUBDIVISION_MAX_ITERATIONS
+			Math.abs(currentX) > B.SUBDIVISION_PRECISION &&
+			++i < B.SUBDIVISION_MAX_ITERATIONS
 		);
 
 		return currentT;
@@ -145,7 +144,7 @@ export class Bezier implements ReadableBezier {
 		mX1: number,
 		mX2: number,
 	) {
-		for (let i = 0; i < BezierConstants.NEWTON_ITERATIONS; ++i) {
+		for (let i = 0; i < B.NEWTON_ITERATIONS; ++i) {
 			const currentSlope = Bezier.getSlope(aGuessT, mX1, mX2);
 
 			if (currentSlope === 0) return aGuessT;
