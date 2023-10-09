@@ -5,11 +5,13 @@ import type { ReadonlyInvariant } from '../types/ReadonlyInvariant.js';
 import { TimelineComputed } from './TimelineComputed.js';
 import type { TimelineSegment } from './TimelineSegment.js';
 import type { TimelineComputedSegment } from './TimelineComputedSegment.js';
+import { Supply } from '../store/Supply.js';
+import { Store } from '../store/Store.js';
+import type { Unreadonly } from '../types/Unreadonly.js';
 
-export class Timeline {
-	#segments: TimelineSegment[];
+export class Timeline extends Supply<Readonly<TimelineSegment[]>> {
 	public get segments(): Readonly<TimelineSegment[]> {
-		return this.#segments;
+		return this.get();
 	}
 
 	#computed: TimelineComputed | undefined = undefined;
@@ -18,7 +20,7 @@ export class Timeline {
 
 		const computedSegments: TimelineComputedSegment[] = [];
 
-		Timeline.tryComputeSegments(this.#segments, {
+		Timeline.tryComputeSegments(this.segments, {
 			ref: computedSegments,
 		});
 
@@ -32,33 +34,37 @@ export class Timeline {
 	}
 
 	constructor(from: ReadonlyInvariant<TimelineSegment[]> = [] as const) {
-		this.#segments = from as unknown as TimelineSegment[];
+		super(new Store(from));
 	}
 
 	public add(segment: TimelineSegment) {
-		this.#segments.push(segment);
-
+		(this.segments as Unreadonly<typeof this.segments>).push(segment);
 		this.#computed = undefined;
+		this.trigger();
 
 		return this;
 	}
 
 	public remove(segment: TimelineSegment) {
-		this.#segments.splice(this.#segments.indexOf(segment), 1);
-
+		(this.segments as Unreadonly<typeof this.segments>).splice(
+			this.segments.indexOf(segment),
+			1,
+		);
 		this.#computed = undefined;
+		this.trigger();
 
 		return this;
 	}
 
-	public destroy() {
+	public override destroy() {
 		for (const segment of this.segments) segment.tween.destroy();
-		this.#segments.length = 0;
 		this.#computed = undefined;
+
+		super.destroy();
 	}
 
 	private static tryComputeSegments(
-		segments: TimelineSegment[],
+		segments: readonly TimelineSegment[],
 		outComputed: { ref: TimelineComputedSegment[] },
 		outPrev = { ref: 0 },
 		outCum = { ref: 0 },

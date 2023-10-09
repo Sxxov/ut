@@ -1,5 +1,7 @@
 import { bezierLinear } from '../bezier/beziers/bezierLinear.js';
+import { IllegalAssignmentError } from '../errors/IllegalAssignmentError.js';
 import { map } from '../math/map.js';
+import { Store } from '../store/Store.js';
 import { Supply } from '../store/Supply.js';
 import { Animatable } from './Animatable.js';
 import type { Composition } from './Composition.js';
@@ -14,7 +16,9 @@ import type { Composition } from './Composition.js';
  * @see {@linkcode Composition} - If you want to compose multiple tweens into
  * one seekable & playable Supply.
  */
-export class Tween extends Animatable {
+export class Tween extends Animatable<number> {
+	public range = this.end - this.start;
+
 	constructor(
 		/**
 		 * The start of the tween value—what the value will be when the tween
@@ -34,7 +38,7 @@ export class Tween extends Animatable {
 		 */
 		public readonly bezier = bezierLinear,
 	) {
-		super();
+		super(new Store(0));
 	}
 
 	public override seekToProgress(progress: number) {
@@ -42,5 +46,10 @@ export class Tween extends Animatable {
 			map(this.bezier.at(progress), 0, 1, this.start, this.end),
 		);
 		this.progress = progress;
+	}
+
+	public seekToValue(value: number): void {
+		this.store.set(value);
+		this.progress = map(value, this.start, this.end, 0, 1);
 	}
 }

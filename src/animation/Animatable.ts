@@ -1,12 +1,12 @@
 import { clamp01 } from '../math/clamp01.js';
-import { Store } from '../store/Store.js';
 import { Supply } from '../store/Supply.js';
+import type { OrAnyNumber } from '../types/OrAnyNumber.js';
 import { AnimatableIterationCount } from './AnimatableIterationCount.js';
 import type { ReadableAnimatable } from './ReadableAnimatable.js';
 
-export abstract class Animatable
-	extends Supply<number>
-	implements ReadableAnimatable
+export abstract class Animatable<T>
+	extends Supply<T>
+	implements ReadableAnimatable<T>
 {
 	/** The current progress of the animatable, from 0 to 1. */
 	protected progress = 0;
@@ -21,35 +21,33 @@ export abstract class Animatable
 	}
 
 	public abstract readonly duration: number;
-	public abstract readonly start: number;
-	public abstract readonly end: number;
-	public get range() {
-		return this.end - this.start;
-	}
-
-	constructor() {
-		super(new Store(0));
-	}
 
 	/**
 	 * Play the animatable.
 	 *
-	 * @param direction The multiplier for the animatable's direction. If it's
-	 *   0, the animatable will pause. If it's negative, the animatable will
-	 *   play backwards. If it's positive, the animatable will play forwards.
-	 *   Values greater than 1 will multiply the speed of the animatable.
+	 * @param direction The multiplier for the animatable's direction.
+	 *
+	 *   - `0`: Equivalent to {@linkcode pause}.
+	 *   - `1`: Play forwards.
+	 *   - `-1`: Play backwards.
+	 *   - Any other number: Play forwards or backwards, depending on the sign, with
+	 *       the value multiplying the speed of the animation.
+	 *
+	 * @param iterationCount The number of times the animatable should play.
 	 */
 	public async play(
-		direction = 1,
-		iterationCount:
-			| AnimatableIterationCount
-			| number = AnimatableIterationCount.ONCE,
+		direction: OrAnyNumber<1 | -1 | 0> = 1,
+		iterationCount: OrAnyNumber<AnimatableIterationCount> = AnimatableIterationCount.ONCE,
 	) {
 		/**
 		 * If the direction or iterationCount is 0, then it's equivalent to
 		 * pausing (since we'd be moving nowhere).
 		 */
-		if (direction === 0 || iterationCount === 0) this.pause();
+		if (direction === 0 || iterationCount === 0) {
+			this.pause();
+			return;
+		}
+
 		/**
 		 * If the animatable currently has a queued raf, cancel it since we're
 		 * gonna be requesting a new one if necessary, & stop if not.
@@ -163,16 +161,6 @@ export abstract class Animatable
 	 */
 	public seekToTime(time: number) {
 		this.seekToProgress(time / this.duration);
-	}
-
-	/**
-	 * Seek to a value.
-	 *
-	 * @param value A value from the start to the end of the animatable,
-	 *   representing the current value of the animatable.
-	 */
-	public seekToValue(value: number) {
-		this.seekToProgress(value / this.range);
 	}
 
 	/**

@@ -1,40 +1,43 @@
 import { clamp01 } from '../math/clamp01.js';
+import { Store } from '../store/Store.js';
 import { Animatable } from './Animatable.js';
 import { AnimatableIterationCount } from './AnimatableIterationCount.js';
+import type { CompositionFrame } from './CompositionFrame.js';
 import { Timeline } from './Timeline.js';
 import type { TimelineAt } from './TimelineAt.js';
 import type { TimelineSegment } from './TimelineSegment.js';
 import type { Tween } from './Tween.js';
 
-export class Composition extends Animatable {
-	private tweenToSegment = new WeakMap<Tween, TimelineSegment>();
-
+export class Composition extends Animatable<CompositionFrame> {
 	public get duration() {
 		return this.timeline.computed.duration;
 	}
 
-	public get start() {
-		return this.timeline.computed.start;
-	}
-
-	public get end() {
-		return this.timeline.computed.end;
-	}
-
 	constructor(public readonly timeline: Timeline = new Timeline()) {
-		super();
+		super(new Store<CompositionFrame>([]));
+
+		timeline.subscribeLazy(() => {
+			this.seekToProgress(this.progress);
+		});
 	}
 
 	public add(tween: Tween, at: TimelineAt) {
 		const segment: TimelineSegment = { tween, at };
-		this.tweenToSegment.set(tween, segment);
 		this.timeline.add(segment);
 
 		return this;
 	}
 
+	public has(tween: Tween) {
+		return this.timeline.segments.some(
+			(segment) => segment.tween === tween,
+		);
+	}
+
 	public remove(tween: Tween) {
-		const segment = this.tweenToSegment.get(tween);
+		const segment = this.timeline.segments.find(
+			(segment) => segment.tween === tween,
+		);
 		if (segment) this.timeline.remove(segment);
 
 		return this;
@@ -52,7 +55,11 @@ export class Composition extends Animatable {
 	}
 
 	public override seekToProgress(progress: number): void {
-		for (const { tween, time } of this.timeline.computed.segments) {
+		const frame = this.get();
+
+		for (let i = 0; i < this.timeline.segments.length; ++i) {
+			const { tween, time } = this.timeline.computed.segments[i]!;
+
 			const startTime = time;
 			const startProgress = startTime / this.duration;
 			const endTime = time + tween.duration;
@@ -62,10 +69,17 @@ export class Composition extends Animatable {
 			);
 
 			tween.seekToProgress(tweenProgress);
+
+			const frameSegment = frame[i];
+			if (frameSegment && frameSegment.tween === tween)
+				frameSegment.value = tweenProgress;
+			else frame[i] = { composition: this, tween, value: tweenProgress };
 		}
 
-		this.store.set(progress * this.range);
 		this.progress = progress;
+
+		frame.length = this.timeline.segments.length;
+		this.trigger();
 	}
 
 	public override destroy(): void {
