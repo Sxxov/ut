@@ -6,3 +6,5 @@ export * from './Timeline.js';
 export * from './TimelineAt.js';
 export * from './TimelineSegment.js';
 export * from './Tween.js';
+export * from './CompositionFrame.js';
+export * from './CompositionFrameSegment.js';
