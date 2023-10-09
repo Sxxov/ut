@@ -10,3 +10,5 @@ export * from './SvgString.js';
 export * from './Unabstract.js';
 export * from './Unreadonly.js';
 export * from './ReadonlyInvariant.js';
+export * from './OrAnyNumber.js';
+export * from './OrAnyString.js';
