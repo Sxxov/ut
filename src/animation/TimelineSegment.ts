@@ -1,15 +1,15 @@
 import type { TimelineAt } from './TimelineAt.js';
-import type { Tween } from './Tween.js';
 import type { TimelineAtLabel } from './TimelineAtLabel.js';
 import type { TimelineAtOffset } from './TimelineAtOffset.js';
 import type { TimelineAtStart } from './TimelineAtStart.js';
 import type { TimelineAtEnd } from './TimelineAtEnd.js';
 import type { TimelineAtAlign } from './TimelineAtAlign.js';
 import type { TimelineAtTime } from './TimelineAtTime.js';
+import type { Animatable } from './Animatable.js';
 
 export interface TimelineSegment {
-	/** The tween to be placed. */
-	tween: Tween;
+	/** The animatable to be placed. */
+	x: Animatable<any>;
 	/**
 	 * A label which can be referred to by other segments via
 	 * {@linkcode TimelineAtLabel.label at.label}.

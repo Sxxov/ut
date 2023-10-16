@@ -1,7 +1,7 @@
-import type { Tween } from './Tween.js';
+import type { Animatable } from './Animatable.js';
 
 export interface TimelineComputedSegment {
+	x: Animatable<any>;
 	label: string | undefined;
-	tween: Tween;
 	time: number;
 }

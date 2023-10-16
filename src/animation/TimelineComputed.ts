@@ -8,8 +8,7 @@ export class TimelineComputed {
 	constructor(segments: ReadonlyInvariant<TimelineComputedSegment[]>) {
 		this.segments = segments;
 		this.duration = this.segments.reduce(
-			(duration, { tween, time }) =>
-				Math.max(duration, time + tween.duration),
+			(duration, { x, time }) => Math.max(duration, time + x.duration),
 			0,
 		);
 	}

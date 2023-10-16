@@ -57,7 +57,7 @@ export class Timeline extends Supply<Readonly<TimelineSegment[]>> {
 	}
 
 	public override destroy() {
-		for (const segment of this.segments) segment.tween.destroy();
+		for (const segment of this.segments) segment.x.destroy();
 		this.#computed = undefined;
 
 		super.destroy();
@@ -74,7 +74,7 @@ export class Timeline extends Supply<Readonly<TimelineSegment[]>> {
 		for (let i = startIndex; i <= endIndex; ++i) {
 			if (outComputed.ref[i]) continue;
 
-			const { tween, at, label } = segments[i]!;
+			const { x, at, label } = segments[i]!;
 			let time: number;
 
 			if (!at) {
@@ -120,15 +120,15 @@ export class Timeline extends Supply<Readonly<TimelineSegment[]>> {
 				time = outPrev.ref + at.offset;
 			} else throw new UnimplementedError();
 
-			const timeAligned = time - tween.duration * (at?.align ?? 0);
+			const timeAligned = time - x.duration * (at?.align ?? 0);
 
 			outComputed.ref[i] = {
 				label,
-				tween,
+				x,
 				time: timeAligned,
 			};
 
-			outPrev.ref = timeAligned + tween.duration;
+			outPrev.ref = timeAligned + x.duration;
 			outCum.ref = Math.max(outCum.ref, outPrev.ref);
 		}
 

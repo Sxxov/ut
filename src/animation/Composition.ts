@@ -6,7 +6,6 @@ import type { CompositionFrame } from './CompositionFrame.js';
 import { Timeline } from './Timeline.js';
 import type { TimelineAt } from './TimelineAt.js';
 import type { TimelineSegment } from './TimelineSegment.js';
-import type { Tween } from './Tween.js';
 
 export class Composition extends Animatable<CompositionFrame> {
 	public get duration() {
@@ -21,22 +20,20 @@ export class Composition extends Animatable<CompositionFrame> {
 		});
 	}
 
-	public add(tween: Tween, at?: TimelineAt) {
-		const segment: TimelineSegment = { tween, at };
+	public add(x: Animatable<any>, at?: TimelineAt) {
+		const segment: TimelineSegment = { x, at };
 		this.timeline.add(segment);
 
 		return this;
 	}
 
-	public has(tween: Tween) {
-		return this.timeline.segments.some(
-			(segment) => segment.tween === tween,
-		);
+	public has(x: Animatable<any>) {
+		return this.timeline.segments.some((segment) => segment.x === x);
 	}
 
-	public remove(tween: Tween) {
+	public remove(x: Animatable<any>) {
 		const segment = this.timeline.segments.find(
-			(segment) => segment.tween === tween,
+			(segment) => segment.x === x,
 		);
 		if (segment) this.timeline.remove(segment);
 
@@ -49,7 +46,7 @@ export class Composition extends Animatable<CompositionFrame> {
 			| AnimatableIterationCount
 			| number = AnimatableIterationCount.ONCE,
 	) {
-		for (const segment of this.timeline.segments) segment.tween.pause();
+		for (const segment of this.timeline.segments) segment.x.pause();
 
 		return super.play(direction, iterationCount);
 	}
@@ -58,22 +55,27 @@ export class Composition extends Animatable<CompositionFrame> {
 		const frame = this.get();
 
 		for (let i = 0; i < this.timeline.segments.length; ++i) {
-			const { tween, time } = this.timeline.computed.segments[i]!;
+			const { x, time } = this.timeline.computed.segments[i]!;
 
 			const startTime = time;
 			const startProgress = startTime / this.duration;
-			const endTime = time + tween.duration;
+			const endTime = time + x.duration;
 			const endProgress = endTime / this.duration;
 			const tweenProgress = clamp01(
 				(progress - startProgress) / (endProgress - startProgress),
 			);
 
-			tween.seekToProgress(tweenProgress);
+			x.seekToProgress(tweenProgress);
 
 			const frameSegment = frame[i];
-			if (frameSegment && frameSegment.tween === tween)
+			if (frameSegment && frameSegment.x === x)
 				frameSegment.value = tweenProgress;
-			else frame[i] = { composition: this, tween, value: tweenProgress };
+			else
+				frame[i] = {
+					composition: this,
+					x,
+					value: tweenProgress,
+				};
 		}
 
 		this.progress = progress;
