@@ -21,7 +21,7 @@ export class Composition extends Animatable<CompositionFrame> {
 		});
 	}
 
-	public add(tween: Tween, at: TimelineAt) {
+	public add(tween: Tween, at?: TimelineAt) {
 		const segment: TimelineSegment = { tween, at };
 		this.timeline.add(segment);
 
