@@ -1,4 +1,7 @@
-import { generateTraverser } from './common/generateTraverser.js';
+import {
+	generateTraverser,
+	traverseContinue,
+} from './common/generateTraverser.js';
 
 export const traverseLeavesPair = generateTraverser(function impl<
 	T extends Record<any, any>,
@@ -16,5 +19,11 @@ export const traverseLeavesPair = generateTraverser(function impl<
 	for (const [key, value] of Object.entries(object1))
 		if (typeof value === 'object' && value !== null)
 			impl(value, object2[key], callback);
-		else callback(value, object2[key], key, object1, object2);
+		else
+			try {
+				callback(value, object2[key], key, object1, object2);
+			} catch (err) {
+				if (traverseContinue in (err as any)) continue;
+				throw err;
+			}
 });

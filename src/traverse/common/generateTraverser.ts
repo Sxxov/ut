@@ -1,19 +1,26 @@
-export const traverseBreak = Symbol('traverse break');
-export const traverseContinue = Symbol('traverse continue');
+export const traverseBreak = Symbol('traverseBreak');
+export const traverseContinue = Symbol('traverseContinue');
 
-type Mixin<T> = T extends void
+type Mixin<T> = (T extends void
 	? {
 			break(): never;
 	  }
 	: {
 			break(ret: T): never;
-	  };
+	  }) & {
+	continue(): never;
+};
 
 const mixin: Mixin<any> = {
 	break(v) {
 		throw {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			[traverseBreak]: v,
+		};
+	},
+	continue() {
+		throw {
+			[traverseContinue]: true,
 		};
 	},
 };

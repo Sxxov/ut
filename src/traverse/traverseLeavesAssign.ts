@@ -4,7 +4,10 @@
 */
 
 import { IllegalInvocationError } from '../errors/IllegalInvocationError.js';
-import { generateTraverser } from './common/generateTraverser.js';
+import {
+	generateTraverser,
+	traverseContinue,
+} from './common/generateTraverser.js';
 
 export const traverseLeavesAssign = generateTraverser(function impl<
 	T extends Record<any, any>,
@@ -25,29 +28,34 @@ export const traverseLeavesAssign = generateTraverser(function impl<
 	},
 ): T {
 	for (const [key, value] of Object.entries(from))
-		if (typeof value === 'object' && value !== null)
-			impl(
-				value,
-				(typeof to[key] === 'object' && to[key] !== null
-					? to[key]
-					: value.constructor === Array
-					? []
-					: value.constructor === Object
-					? {}
-					: instantiator(
-							value.constructor as new (...args: any[]) => Record<
-								any,
-								any
-							>,
-							value as Record<any, any>,
-							to[key],
-							key,
-							from,
-							to,
-					  )) as Record<any, any>,
-				instantiator,
-			);
-		else to[key] = value;
+		if (typeof value === 'object' && value !== null) {
+			let v: Record<any, any>;
+			try {
+				v = (
+					typeof to[key] === 'object' && to[key] !== null
+						? to[key]
+						: value.constructor === Array
+						? []
+						: value.constructor === Object
+						? {}
+						: instantiator(
+								value.constructor as new (
+									...args: any[]
+								) => Record<any, any>,
+								value as Record<any, any>,
+								to[key],
+								key,
+								from,
+								to,
+						  )
+				) as Record<any, any>;
+			} catch (err) {
+				if (traverseContinue in (err as any)) continue;
+				throw err;
+			}
+
+			impl(value, v, instantiator);
+		} else to[key] = value;
 
 	return to;
 });

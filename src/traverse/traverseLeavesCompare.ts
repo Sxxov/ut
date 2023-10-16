@@ -1,4 +1,7 @@
-import { generateTraverser } from './common/generateTraverser.js';
+import {
+	generateTraverser,
+	traverseContinue,
+} from './common/generateTraverser.js';
 
 export const traverseLeavesCompare = generateTraverser(function impl<
 	T1 extends Record<string, any>,
@@ -22,8 +25,17 @@ export const traverseLeavesCompare = generateTraverser(function impl<
 			object2[key] !== null
 		) {
 			if (!impl(value, object2[key], comparator)) return false;
-		} else if (!comparator(value, object2[key], key, object1, object2))
-			return false;
+		} else {
+			let v: boolean;
+			try {
+				v = comparator(value, object2[key], key, object1, object2);
+			} catch (err) {
+				if (traverseContinue in (err as any)) continue;
+				throw err;
+			}
+
+			if (!v) return false;
+		}
 
 	return true;
 });

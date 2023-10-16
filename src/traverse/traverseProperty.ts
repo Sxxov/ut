@@ -1,4 +1,7 @@
-import { generateTraverser } from './common/generateTraverser.js';
+import {
+	generateTraverser,
+	traverseContinue,
+} from './common/generateTraverser.js';
 
 export const traverseProperty = generateTraverser(function impl<
 	T extends Record<any, any>,
@@ -8,7 +11,13 @@ export const traverseProperty = generateTraverser(function impl<
 		return;
 
 	for (const value of Object.values<T[Key][number]>(object[property])) {
-		callback(value);
-		impl(value, property, callback);
+		try {
+			callback(value);
+		} catch (err) {
+			if (traverseContinue in (err as any)) continue;
+			throw err;
+		} finally {
+			impl(value, property, callback);
+		}
 	}
 });
