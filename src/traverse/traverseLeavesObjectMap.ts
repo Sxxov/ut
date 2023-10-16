@@ -1,6 +1,6 @@
 /*
 	eslint-disable
-		@typescript-eslint/no-unsafe-return
+		@typescript-eslint/no-unsafe-assignment
 */
 
 import {
@@ -8,21 +8,22 @@ import {
 	traverseContinue,
 } from './common/generateTraverser.js';
 
-export const traverseLeavesMap = generateTraverser(function impl(
+export const traverseLeavesObjectMap = generateTraverser(function impl(
 	object: Record<any, any>,
 	callback: (leaf: any, key: string | number | symbol, parent: any) => any,
-	mapped: any[] = [],
 ) {
+	const result: Record<string, any> = {};
+
 	for (const [key, value] of Object.entries(object))
 		if (typeof value === 'object' && value !== null)
-			impl(value as typeof object, callback, mapped);
+			result[key] = impl(value as typeof object, callback);
 		else
 			try {
-				mapped.push(callback(value, key, object));
+				result[key] = callback(value, key, object);
 			} catch (err) {
 				if (traverseContinue in (err as any)) continue;
 				throw err;
 			}
 
-	return mapped;
+	return result;
 });
