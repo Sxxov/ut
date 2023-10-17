@@ -1,29 +1,36 @@
+/** @internal */
 export const traverseBreak = Symbol('traverseBreak');
+/** @internal */
 export const traverseContinue = Symbol('traverseContinue');
+/** @internal */
+export const traverseRaise = Symbol('traverseRaise');
+/** @internal */
+export const traverseShortCircuit = Symbol('traverseShortCircuit');
 
-type Mixin<T> = (T extends void
-	? {
-			break(): never;
-	  }
-	: {
-			break(ret: T): never;
-	  }) & {
-	continue(): never;
-};
-
-const mixin: Mixin<any> = {
-	break(v) {
+/** @internal */
+export class TraverseShortCircuit {
+	public static break(): never {
 		throw {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			[traverseBreak]: v,
+			[traverseBreak]: true,
+			[traverseShortCircuit]: true,
 		};
-	},
-	continue() {
+	}
+
+	public static continue(): never {
 		throw {
 			[traverseContinue]: true,
+			[traverseShortCircuit]: true,
 		};
-	},
-};
+	}
+
+	/** @internal */
+	public static raise(payload: unknown): never {
+		throw {
+			[traverseRaise]: payload,
+			[traverseShortCircuit]: true,
+		};
+	}
+}
 
 export const generateTraverser = <T extends (...args: any) => any>(impl: T) => {
 	return Object.assign(
@@ -33,10 +40,15 @@ export const generateTraverser = <T extends (...args: any) => any>(impl: T) => {
 				return impl(...args);
 			} catch (err) {
 				if (traverseBreak in (err as any)) return;
+				if (traverseRaise in (err as any))
+					return (err as any)[traverseRaise] as ReturnType<T>;
 
 				throw err;
 			}
-		}) as unknown as T & Mixin<ReturnType<T>>,
-		mixin,
+		}) as unknown as T,
+		{
+			break: TraverseShortCircuit.break,
+			continue: TraverseShortCircuit.continue,
+		},
 	);
 };

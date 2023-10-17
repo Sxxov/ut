@@ -1,5 +1,7 @@
 import {
+	TraverseShortCircuit,
 	generateTraverser,
+	traverseBreak,
 	traverseContinue,
 } from './common/generateTraverser.js';
 
@@ -20,10 +22,15 @@ export const traversePropertyMap = generateTraverser(function impl<
 		try {
 			mapped.push(callback(value));
 		} catch (err) {
-			if (traverseContinue in (err as any)) continue;
+			if (traverseContinue in (err as any)) {
+				impl(value, property, callback, mapped);
+				continue;
+			}
+
+			if (traverseBreak in (err as any))
+				TraverseShortCircuit.raise(mapped);
+
 			throw err;
-		} finally {
-			impl(value, property, callback, mapped);
 		}
 	}
 

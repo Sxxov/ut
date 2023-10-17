@@ -4,7 +4,9 @@
 */
 
 import {
+	TraverseShortCircuit,
 	generateTraverser,
+	traverseBreak,
 	traverseContinue,
 } from './common/generateTraverser.js';
 
@@ -21,6 +23,8 @@ export const traverseLeavesMap = generateTraverser(function impl(
 				mapped.push(callback(value, key, object));
 			} catch (err) {
 				if (traverseContinue in (err as any)) continue;
+				if (traverseBreak in (err as any))
+					TraverseShortCircuit.raise(mapped);
 				throw err;
 			}
 

@@ -14,10 +14,12 @@ export const traverseProperty = generateTraverser(function impl<
 		try {
 			callback(value);
 		} catch (err) {
-			if (traverseContinue in (err as any)) continue;
+			if (traverseContinue in (err as any)) {
+				impl(value, property, callback);
+				continue;
+			}
+
 			throw err;
-		} finally {
-			impl(value, property, callback);
 		}
 	}
 });
