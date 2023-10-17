@@ -6,20 +6,16 @@ import {
 export const traverseProperty = generateTraverser(function impl<
 	T extends Record<any, any>,
 	Key extends keyof T,
->(object: T, property: Key, callback: (object: T[Key][number]) => void) {
-	if (typeof object[property] !== 'object' || object[property] === null)
-		return;
+>(object: T, property: Key, callback: (object: T[Key]) => void) {
+	const value = object[property];
 
-	for (const value of Object.values<T[Key][number]>(object[property])) {
-		try {
-			callback(value);
-		} catch (err) {
-			if (traverseContinue in (err as any)) {
-				impl(value, property, callback);
-				continue;
-			}
+	if (typeof value !== 'object' || value === null) return;
 
-			throw err;
-		}
+	try {
+		callback(value);
+		impl(value, property, callback);
+	} catch (err) {
+		if (traverseContinue in (err as any)) impl(value, property, callback);
+		else throw err;
 	}
 });
