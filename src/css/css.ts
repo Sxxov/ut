@@ -1,4 +1,46 @@
-export type Css = string | number;
+import type { OrAnyString } from '../types/OrAnyString.js';
+
+export type Css =
+	| OrAnyString<
+			| '--'
+			| 'px'
+			| 'em'
+			| 'rem'
+			| 'vw'
+			| 'vh'
+			| 'vmin'
+			| 'vmax'
+			| 'svw'
+			| 'svh'
+			| 'svmin'
+			| 'svmax'
+			| 'lvw'
+			| 'lvh'
+			| 'lvmin'
+			| 'lvmax'
+			| 'dvw'
+			| 'dvh'
+			| 'dvmin'
+			| 'dvmax'
+			| 'max-content'
+			| 'min-content'
+			| 'calc()'
+			| 'min()'
+			| 'max()'
+			| 'clamp()'
+			| 'sin()'
+			| 'cos()'
+			| 'tan()'
+			| 'var(--)'
+			| 'auto'
+			| 'inherit'
+			| 'initial'
+			| 'unset'
+			| '%'
+			| '100%'
+			| '0'
+	  >
+	| number;
 
 /**
  * Converts a number or a number string to a CSS value.
