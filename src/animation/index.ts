@@ -14,6 +14,7 @@ export * from './TimeAtTime.js';
 export * from './Timeline.js';
 export * from './TimelineAt.js';
 export * from './TimelineSegment.js';
+export * from './TimelineSegmentValue.js';
 export * from './Track.js';
 export * from './TrackKeyframe.js';
 export * from './TrackKeyframeValue.js';
