@@ -2,11 +2,15 @@ import { Store } from '../store/Store.js';
 import { Supply } from '../store/Supply.js';
 import type { ReadonlyInvariant } from '../types/ReadonlyInvariant.js';
 import type { Unreadonly } from '../types/Unreadonly.js';
+import type { CompositionFrame } from './CompositionFrame.js';
 import { type TimelineComputedSegmentCollection } from './TimelineComputedSegmentCollection.js';
 import { TimelineComputedSegmentCollectionFactory } from './TimelineComputedSegmentCollectionFactory.js';
 import type { TimelineSegment } from './TimelineSegment.js';
+import type { TrackKeyframeValue } from './TrackKeyframeValue.js';
 
-export class Timeline<V> extends Supply<Readonly<TimelineSegment<V>[]>> {
+export class Timeline<
+	V = number | TrackKeyframeValue | CompositionFrame,
+> extends Supply<Readonly<TimelineSegment<V>[]>> {
 	public get segments(): Readonly<TimelineSegment<V>[]> {
 		return this.get();
 	}
