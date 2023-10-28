@@ -5,14 +5,15 @@ import { AnimatableIterationCount } from './AnimatableIterationCount.js';
 import type { CompositionFrame } from './CompositionFrame.js';
 import { Timeline } from './Timeline.js';
 import type { TimelineAt } from './TimelineAt.js';
-import type { TimelineSegment } from './TimelineSegment.js';
 
-export class Composition extends Animatable<CompositionFrame> {
+export class Composition<
+	V = number | CompositionFrame,
+> extends Animatable<CompositionFrame> {
 	public get duration() {
 		return this.timeline.computed.duration;
 	}
 
-	constructor(public readonly timeline: Timeline = new Timeline()) {
+	constructor(public readonly timeline: Timeline<V> = new Timeline()) {
 		super(new Store<CompositionFrame>([]));
 
 		timeline.subscribeLazy(() => {
@@ -20,18 +21,17 @@ export class Composition extends Animatable<CompositionFrame> {
 		});
 	}
 
-	public add(x: Animatable<any>, at?: TimelineAt) {
-		const segment: TimelineSegment = { x, at };
-		this.timeline.add(segment);
+	public add(x: Animatable<V>, at?: TimelineAt) {
+		this.timeline.add({ x, at });
 
 		return this;
 	}
 
-	public has(x: Animatable<any>) {
+	public has(x: Animatable<V>) {
 		return this.timeline.segments.some((segment) => segment.x === x);
 	}
 
-	public remove(x: Animatable<any>) {
+	public remove(x: Animatable<V>) {
 		const segment = this.timeline.segments.find(
 			(segment) => segment.x === x,
 		);
@@ -72,7 +72,9 @@ export class Composition extends Animatable<CompositionFrame> {
 				frameSegment.value = tweenProgress;
 			else
 				frame[i] = {
-					composition: this,
+					// not sure what the issue is here
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+					composition: this as any,
 					x,
 					value: tweenProgress,
 				};

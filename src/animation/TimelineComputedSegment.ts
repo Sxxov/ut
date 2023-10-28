@@ -1,7 +1,7 @@
 import type { Animatable } from './Animatable.js';
 
-export interface TimelineComputedSegment {
-	x: Animatable<any>;
+export interface TimelineComputedSegment<V> {
+	x: Animatable<V>;
 	label: string | undefined;
 	time: number;
 }
