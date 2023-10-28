@@ -7,9 +7,9 @@ import { TrackComputedKeyframeCollectionFactory } from './TrackComputedKeyframeC
 import type { TrackKeyframe } from './TrackKeyframe.js';
 import type { TrackKeyframeValue } from './TrackKeyframeValue.js';
 
-export class Track<V extends TrackKeyframeValue> extends Supply<
-	Readonly<TrackKeyframe<V>[]>
-> {
+export class Track<
+	V extends TrackKeyframeValue = TrackKeyframeValue,
+> extends Supply<Readonly<TrackKeyframe<V>[]>> {
 	public get keyframes(): Readonly<TrackKeyframe<V>[]> {
 		return this.get();
 	}

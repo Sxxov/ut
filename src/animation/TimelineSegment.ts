@@ -6,8 +6,9 @@ import type { TimeAtStart } from './TimeAtStart.js';
 import type { TimeAtTime } from './TimeAtTime.js';
 import type { TimeSegment } from './TimeSegment.js';
 import type { TimelineAt } from './TimelineAt.js';
+import type { TimelineSegmentValue } from './TimelineSegmentValue.js';
 
-export interface TimelineSegment<V>
+export interface TimelineSegment<V = TimelineSegmentValue>
 	extends TimeSegment<Animatable<V>, TimelineAt> {
 	/** The animatable to be placed */
 	x: Animatable<V>;

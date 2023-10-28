@@ -5,10 +5,11 @@ import { AnimatableIterationCount } from './AnimatableIterationCount.js';
 import type { CompositionFrame } from './CompositionFrame.js';
 import { Timeline } from './Timeline.js';
 import type { TimelineAt } from './TimelineAt.js';
+import type { TimelineSegmentValue } from './TimelineSegmentValue.js';
 import type { TrackKeyframeValue } from './TrackKeyframeValue.js';
 
 export class Composition<
-	V = number | TrackKeyframeValue | CompositionFrame,
+	V = TimelineSegmentValue,
 > extends Animatable<CompositionFrame> {
 	public get duration() {
 		return this.timeline.computed.duration;

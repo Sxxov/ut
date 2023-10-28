@@ -8,8 +8,9 @@ import type { TimeSegment } from './TimeSegment.js';
 import type { TimeAt } from './TimeAt.js';
 import type { ReadableBezier } from '../bezier/ReadableBezier.js';
 
-export interface TrackKeyframe<V extends TrackKeyframeValue>
-	extends TimeSegment<V, TimeAt> {
+export interface TrackKeyframe<
+	V extends TrackKeyframeValue = TrackKeyframeValue,
+> extends TimeSegment<V, TimeAt> {
 	/** The value of the keyframe */
 	x: V;
 
