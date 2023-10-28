@@ -1,3 +1,5 @@
+import type { OrAnyNumber } from '../types/OrAnyNumber.js';
+
 export interface TimelineAtAlign {
 	/**
 	 * The alignment of the segment on the timeline, in the range of 0-1, where:
@@ -9,5 +11,5 @@ export interface TimelineAtAlign {
 	 * percentage of the segment's duration, e.g. 1.5 would place the segment's
 	 * end at 150% of its duration.
 	 */
-	align: 0 | 0.5 | 1 | (number & Record<string, unknown>);
+	align: OrAnyNumber<0 | 0.5 | 1>;
 }

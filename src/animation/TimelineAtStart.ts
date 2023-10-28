@@ -1,6 +1,7 @@
 import type { TimelineAtTime } from './TimelineAtTime.js';
 import type { TimelineAtEnd } from './TimelineAtEnd.js';
 import type { TimelineAtAlign } from './TimelineAtAlign.js';
+import type { OrAnyNumber } from '../types/OrAnyNumber.js';
 
 export interface TimelineAtStart {
 	/**
@@ -13,6 +14,5 @@ export interface TimelineAtStart {
 	 * @see {@linkcode TimelineAtEnd.end at.end} If you want it to be _relative_ to the **end of the timeline**.
 	 * @see {@linkcode TimelineAtAlign.align at.align} If you want to align its placement _relative_ to the **start or end of itself**.
 	 */
-	// eslint-disable-next-line @typescript-eslint/ban-types
-	start: 0 | (number & {});
+	start: OrAnyNumber<0>;
 }
