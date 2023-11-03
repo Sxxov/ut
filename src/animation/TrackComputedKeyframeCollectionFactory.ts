@@ -21,6 +21,7 @@ export class TrackComputedKeyframeCollectionFactory<
 	public create(): Readonly<TrackComputedKeyframeCollecton<V>> {
 		if (!this.computed) {
 			this.computeKeyframes(0, this.keyframes.length - 1);
+			this.computedKeyframes.sort((a, b) => a.time - b.time);
 			this.computedDuration = this.computedKeyframes.reduce(
 				(duration, { time }) => Math.max(duration, time),
 				0,
