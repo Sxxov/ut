@@ -144,70 +144,51 @@ export class Layer<
 		const time = progress * this.duration;
 
 		const { keyframes } = this.track.computed;
-		rest: {
-			for (let i = 0; i < keyframes.length; ++i) {
-				const keyframe = keyframes[i]!;
+		const i = keyframes.findLastIndex(({ time: t }) => t <= time);
 
-				const { x: curr, time: startTime, bezier } = keyframe;
+		if (i < 0) {
+			this.store.set(this.#start);
 
-				if (time < startTime) continue;
-
-				if (curr instanceof Array)
-					vector: {
-						const res = Array<number>(curr.length).fill(0);
-
-						for (const [ii, c] of curr.entries()) {
-							const {
-								x: next = curr,
-								time: endTime = this.duration,
-							} = this.getNextTruthyVectorAtElement(i, ii) ?? {};
-
-							const startProgress = startTime / this.duration;
-							const endProgress = endTime / this.duration;
-							const tweenProgress = bezier.at(
-								clamp01(
-									map01(progress, startProgress, endProgress),
-								),
-							);
-							const tweenValue = lerp(
-								tweenProgress,
-								c,
-								next[ii]!,
-							);
-
-							res[ii] = tweenValue;
-						}
-
-						this.store.set(res as V);
-					}
-				else
-					scalar: {
-						const {
-							x: next = curr,
-							time: endTime = this.duration,
-						} = this.getNextTruthyScalar(i) ?? {};
-
-						const startProgress = startTime / this.duration;
-						const endProgress = endTime / this.duration;
-						const tweenProgress = bezier.at(
-							clamp01(
-								map01(progress, startProgress, endProgress),
-							),
-						);
-						const res = lerp(tweenProgress, curr, next);
-
-						this.store.set(res as V);
-					}
-
-				break rest;
-			}
-
-			first: {
-				// if the time is before the first keyframe, use the initial value
-
-				this.store.set(this.#start);
-			}
+			return;
 		}
+
+		const keyframe = keyframes[i]!;
+		const { x: curr, time: startTime, bezier } = keyframe;
+
+		if (curr instanceof Array)
+			vector: {
+				const res = Array<number>(curr.length).fill(0);
+
+				for (const [ii, c] of curr.entries()) {
+					const { x: next = curr, time: endTime = this.duration } =
+						this.getNextTruthyVectorAtElement(i, ii) ?? {};
+
+					const startProgress = startTime / this.duration;
+					const endProgress = endTime / this.duration;
+					const tweenProgress = bezier.at(
+						clamp01(map01(progress, startProgress, endProgress)),
+					);
+					const tweenValue = lerp(tweenProgress, c, next[ii]!);
+
+					res[ii] = tweenValue;
+				}
+
+				this.store.set(res as V);
+			}
+		else
+			scalar: {
+				const { x: next = curr, time: endTime = this.duration } =
+					this.getNextTruthyScalar(i) ?? {};
+
+				const startProgress = startTime / this.duration;
+				const endProgress = endTime / this.duration;
+				const tweenProgress = bezier.at(
+					clamp01(map01(progress, startProgress, endProgress)),
+				);
+				const res = lerp(tweenProgress, curr, next);
+
+				this.store.set(res as V);
+			}
 
 		this.progress = progress;
 	}
