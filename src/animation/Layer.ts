@@ -152,6 +152,12 @@ export class Layer<
 			return;
 		}
 
+		if (i === keyframes.length - 1) {
+			this.store.set(this.#end);
+
+			return;
+		}
+
 		const keyframe = keyframes[i]!;
 		const { x: curr, time: startTime, bezier } = keyframe;
 
