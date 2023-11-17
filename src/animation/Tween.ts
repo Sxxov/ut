@@ -38,7 +38,7 @@ export class Tween extends Animatable<number> {
 		 */
 		public readonly bezier = bezierLinear,
 	) {
-		super(new Store(0));
+		super(new Store(start));
 	}
 
 	public override seekToProgress(progress: number) {
