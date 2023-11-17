@@ -1,4 +1,3 @@
-import { Bezier } from '../bezier/Bezier.js';
 import type { ReadableBezier } from '../bezier/ReadableBezier.js';
 import { IllegalArgumentError } from '../errors/IllegalArgumentError.js';
 import { IllegalStateError } from '../errors/IllegalStateError.js';
@@ -22,12 +21,12 @@ export class Layer<
 
 	public readonly track: Track<V>;
 
-	#start: V;
+	#start!: V;
 	public get start() {
 		return this.#start;
 	}
 
-	#end: V;
+	#end!: V;
 	public get end() {
 		return this.#end;
 	}
@@ -49,20 +48,27 @@ export class Layer<
 		super(new Store<V>(initial));
 
 		const isTrack = trackOrInitial instanceof Track;
+		const isScalar = typeof initial === 'number';
 
-		this.#start = initial;
 		this.track = isTrack ? trackOrInitial : new Track();
-		this.#end =
-			isTrack && this.track.keyframes.length > 0
-				? this.track.keyframes[this.track.keyframes.length - 1]?.x ??
-				  initial
-				: initial;
-
-		this.track.subscribeLazy(() => {
+		this.track.subscribe(() => {
 			if (this.track.keyframes.length > 0) {
-				this.#start = this.track.keyframes[0]!.x;
-				this.#end =
-					this.track.keyframes[this.track.keyframes.length - 1]!.x;
+				this.#start = (
+					isScalar
+						? this.getNextTruthyScalarKeyframe(-1)?.x ?? 0
+						: this.buildNextTruthyVector(-1)
+				) as V;
+				this.#end = (
+					isScalar
+						? this.getNextTruthyScalarKeyframe(
+								this.track.keyframes.length,
+								-1,
+						  )?.x ?? 0
+						: this.buildNextTruthyVector(
+								this.track.keyframes.length,
+								-1,
+						  )
+				) as V;
 			} else {
 				this.#start = initial;
 				this.#end = initial;
@@ -91,11 +97,26 @@ export class Layer<
 		return this;
 	}
 
-	private getNextTruthyScalar(keyframeIndex: number) {
-		const { keyframes } = this.track.computed;
-		const { time: startTime } = keyframes[keyframeIndex]!;
+	private isTruthyScalar(v: number) {
+		return !Number.isNaN(v) && v != null;
+	}
 
-		for (let i = keyframeIndex + 1; i < keyframes.length; ++i) {
+	private getNextTruthyScalarKeyframe(
+		keyframeIndex: number,
+		direction: 1 | -1 = 1,
+		predicate?: (v: TrackComputedKeyframe<V>) => boolean,
+	) {
+		const { keyframes } = this.track.computed;
+		const { time: startTime } =
+			keyframes[keyframeIndex] ?? direction > 0
+				? keyframes[0]!
+				: keyframes[keyframes.length - 1]!;
+
+		for (
+			let i = direction > 0 ? keyframeIndex + 1 : keyframeIndex - 1;
+			direction > 0 ? i < keyframes.length : i >= 0;
+			i += direction
+		) {
 			const keyframe = keyframes[i]!;
 
 			const { x, time: endTime } = keyframe;
@@ -106,21 +127,31 @@ export class Layer<
 						keyframes[keyframeIndex]!.x,
 					)} → ${this.keyframeValueToString(x)}.`,
 				);
-			if (startTime > endTime) continue;
+			if (direction > 0 ? startTime > endTime : startTime < endTime)
+				continue;
 
-			if (!Number.isNaN(x) && x != null)
+			if (this.isTruthyScalar(x) && (!predicate || predicate(keyframe)))
 				return keyframe as TrackComputedKeyframe<number>;
 		}
 	}
 
-	private getNextTruthyVectorAtElement(
+	private getNextTruthyVectorKeyframeAtElement(
 		keyframeIndex: number,
 		elementIndex: number,
+		direction: 1 | -1 = 1,
+		predicate?: (v: TrackComputedKeyframe<V>) => boolean,
 	) {
 		const { keyframes } = this.track.computed;
-		const { time: startTime } = keyframes[keyframeIndex]!;
+		const { time: startTime } =
+			keyframes[keyframeIndex] ?? direction > 0
+				? keyframes[0]!
+				: keyframes[keyframes.length - 1]!;
 
-		for (let i = keyframeIndex + 1; i < keyframes.length; ++i) {
+		for (
+			let i = direction > 0 ? keyframeIndex + 1 : keyframeIndex - 1;
+			direction > 0 ? i < keyframes.length : i >= 0;
+			i += direction
+		) {
 			const keyframe = keyframes[i]!;
 
 			const { x, time: endTime } = keyframe;
@@ -131,13 +162,70 @@ export class Layer<
 						keyframes[keyframeIndex]!.x,
 					)} → ${this.keyframeValueToString(x)}.`,
 				);
-			if (startTime > endTime) continue;
+			if (direction > 0 ? startTime > endTime : startTime < endTime)
+				continue;
 
 			const value = x[elementIndex]!;
 
-			if (!Number.isNaN(value) && value != null)
+			if (
+				this.isTruthyScalar(value) &&
+				(!predicate || predicate(keyframe))
+			)
 				return keyframe as TrackComputedKeyframe<[number, ...number[]]>;
 		}
+	}
+
+	private buildNextTruthyVector(
+		keyframeIndex: number,
+		direction: 1 | -1 = 1,
+		predicate?: (v: TrackComputedKeyframe<V>) => boolean,
+	) {
+		const vec: (number | undefined)[] = [undefined];
+
+		for (let i = 0; i < vec.length; ++i) {
+			const keyframe = this.getNextTruthyVectorKeyframeAtElement(
+				keyframeIndex,
+				i,
+				direction,
+				predicate,
+			);
+
+			if (!keyframe) break;
+
+			vec.length = keyframe.x.length;
+			vec[i] = keyframe.x[i]!;
+		}
+
+		return vec;
+	}
+
+	private coalesceVectors<T>(
+		source: (T | undefined)[],
+		fallback: (T | undefined)[],
+	) {
+		for (let i = 0; i < Math.max(source.length, fallback.length); ++i)
+			source[i] ??= fallback[i];
+
+		return source;
+	}
+
+	private toCoalescedVectors<T>(
+		source: readonly (T | undefined)[],
+		fallback: readonly (T | undefined)[],
+	) {
+		return Array(Math.max(source.length, fallback.length))
+			.fill(0)
+			.map((_, i) => source[i] ?? fallback[i]);
+	}
+
+	private fillHolesInVector<T>(v: (T | undefined)[], fallback: T) {
+		for (let i = 0; i < v.length; ++i) v[i] ??= fallback;
+
+		return v as T[];
+	}
+
+	private toHoleFilledVector<T>(v: readonly (T | undefined)[], fallback: T) {
+		return v.map((v) => v ?? fallback);
 	}
 
 	public override seekToProgress(progress: number): void {
@@ -159,15 +247,36 @@ export class Layer<
 		}
 
 		const keyframe = keyframes[i]!;
-		const { x: curr, time: startTime, bezier } = keyframe;
+		const viableKeyframes = keyframes.filter(
+			({ time: t }) => t === keyframe.time,
+		);
+		if (viableKeyframes.length > 1 && keyframe.x instanceof Array)
+			keyframe.x = viableKeyframes.reduce<(number | undefined)[]>(
+				(a, b) => this.toCoalescedVectors(a, b.x as number[]),
+				keyframe.x,
+			) as V;
+		const { time: startTime, bezier } = keyframe;
 
-		if (curr instanceof Array)
+		if (keyframe.x instanceof Array)
 			vector: {
+				const curr = keyframe.x.some((v) => !this.isTruthyScalar(v))
+					? this.fillHolesInVector(
+							this.toCoalescedVectors(
+								this.toCoalescedVectors(
+									keyframe.x,
+									this.buildNextTruthyVector(i, -1),
+								),
+								this.buildNextTruthyVector(i, 1),
+							),
+							0,
+					  )
+					: (keyframe.x as number[]);
+
 				const res = Array<number>(curr.length).fill(0);
 
 				for (const [ii, c] of curr.entries()) {
 					const { x: next = curr, time: endTime = this.duration } =
-						this.getNextTruthyVectorAtElement(i, ii) ?? {};
+						this.getNextTruthyVectorKeyframeAtElement(i, ii) ?? {};
 
 					const startProgress = startTime / this.duration;
 					const endProgress = endTime / this.duration;
@@ -183,8 +292,12 @@ export class Layer<
 			}
 		else
 			scalar: {
+				const curr = this.isTruthyScalar(keyframe.x)
+					? Number(keyframe.x)
+					: this.getNextTruthyScalarKeyframe(i, -1)?.x ?? 0;
+
 				const { x: next = curr, time: endTime = this.duration } =
-					this.getNextTruthyScalar(i) ?? {};
+					this.getNextTruthyScalarKeyframe(i) ?? {};
 
 				const startProgress = startTime / this.duration;
 				const endProgress = endTime / this.duration;
