@@ -7,11 +7,9 @@ import {
 
 export const traversePropertyReduce = generateTraverser(function impl<
 	T extends Record<any, any>,
-	Key extends {
-		[K in keyof T]: T[K] extends any[] ? K : never;
-	}[keyof T],
-	R = T[Key][number] | undefined,
->(object: T, property: Key, callback: (prev: R, curr: T[Key][number]) => R, prev?: R) {
+	Key extends keyof T,
+	R = T[Key] | undefined,
+>(object: T, property: Key, callback: (prev: R, curr: T[Key]) => R, prev?: R) {
 	const value = object[property];
 
 	if (typeof value !== 'object' || value === null) return prev;
