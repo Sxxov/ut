@@ -15,6 +15,11 @@ export const use = <T extends readonly (Store<any> | Supply<any>)[]>(
 		}
 	) => void,
 ) => {
+	if (stores.length === 0) {
+		(callback as () => void)();
+		return;
+	}
+
 	const values = stores.map((store) => store.get());
 
 	const subscriber = () => {

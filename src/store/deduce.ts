@@ -18,6 +18,8 @@ export const deduce = <
 	stores: T,
 	callback: Callback,
 ) => {
+	if (stores.length === 0) return (callback as () => ReturnType<Callback>)();
+
 	let values = stores.map((store) => store.get());
 
 	const out = new Store<ReturnType<Callback>>(callback(...(values as any)));
