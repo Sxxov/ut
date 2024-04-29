@@ -9,22 +9,24 @@ import { Supply } from './Supply.js';
 
 export const deduce = <
 	T extends (Store<any> | Supply<any>)[],
-	Callback extends (values: {
-		[k in keyof T]: ReturnType<T[k]['get']>;
-	}) => any,
+	Callback extends (
+		...values: {
+			[k in keyof T]: ReturnType<T[k]['get']>;
+		}
+	) => any,
 >(
 	stores: T,
 	callback: Callback,
 ) => {
 	let values = stores.map((store) => store.get());
 
-	const out = new Store<ReturnType<Callback>>(callback(values as any));
+	const out = new Store<ReturnType<Callback>>(callback(...(values as any)));
 
 	const subscriber = () => {
 		const newValues = stores.map((store) => store.get());
 
 		if (values.some((value, i) => value !== newValues[i]))
-			out.set(callback(newValues as any));
+			out.set(callback(...(newValues as any)));
 
 		values = newValues;
 	};
