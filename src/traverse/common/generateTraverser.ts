@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-throw-literal */
 /** @internal */
 export const traverseBreak = Symbol('traverseBreak');
 /** @internal */
@@ -8,6 +9,7 @@ export const traverseRaise = Symbol('traverseRaise');
 export const traverseShortCircuit = Symbol('traverseShortCircuit');
 
 /** @internal */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TraverseShortCircuit {
 	public static break(): never {
 		throw {

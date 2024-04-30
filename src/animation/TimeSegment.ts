@@ -1,6 +1,6 @@
 import type { TimeAtLabel } from './TimeAtLabel.js';
 
-export interface TimeSegment<Target, At extends Record<any, any> | undefined> {
+export type TimeSegment<Target, At extends Record<any, any> | undefined> = {
 	/** The target to be placed. */
 	x: Target;
 	/**
@@ -10,4 +10,4 @@ export interface TimeSegment<Target, At extends Record<any, any> | undefined> {
 	label?: string;
 	/** The placement of the segment. */
 	at?: At;
-}
+};

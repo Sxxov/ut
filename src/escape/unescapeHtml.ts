@@ -2,7 +2,7 @@ export const unescapeHtml = (string: string) => {
 	const regex = /&#(\d?\d{2});/g;
 	let result = '.js';
 	let prevEnd = 0;
-	let curr: RegExpExecArray | null = null;
+	let curr: ReturnType<RegExp['exec']> = null;
 
 	while ((curr = regex.exec(string))) {
 		const { index, 0: match } = curr;

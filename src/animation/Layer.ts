@@ -97,6 +97,96 @@ export class Layer<
 		return this;
 	}
 
+	public override seekToProgress(progress: number): void {
+		const time = progress * this.duration;
+
+		const { keyframes } = this.track.computed;
+		const i = keyframes.findLastIndex(({ time: t }) => t <= time);
+
+		if (i < 0) {
+			this.store.set(this.#start);
+
+			return;
+		}
+
+		if (i === keyframes.length - 1) {
+			this.store.set(this.#end);
+
+			return;
+		}
+
+		const keyframe = keyframes[i]!;
+		const viableKeyframes = keyframes.filter(
+			({ time: t }) => t === keyframe.time,
+		);
+		if (viableKeyframes.length > 1 && keyframe.x instanceof Array)
+			keyframe.x = viableKeyframes.reduce<(number | undefined)[]>(
+				(a, b) => this.toCoalescedVectors(a, b.x as number[]),
+				keyframe.x,
+			) as V;
+		const { time: startTime, bezier } = keyframe;
+
+		if (keyframe.x instanceof Array)
+			vector: {
+				const curr = keyframe.x.some((v) => !this.isTruthyScalar(v))
+					? this.fillHolesInVector(
+							this.toCoalescedVectors(
+								this.toCoalescedVectors(
+									keyframe.x as number[],
+									this.buildNextTruthyVector(i, -1),
+								),
+								this.buildNextTruthyVector(i, 1),
+							),
+							0,
+					  )
+					: (keyframe.x as number[]);
+
+				const res = Array<number>(curr.length).fill(0);
+
+				for (const [ii, c] of curr.entries()) {
+					const { x: next = curr, time: endTime = this.duration } =
+						this.getNextTruthyVectorKeyframeAtElement(i, ii) ?? {};
+
+					const startProgress = startTime / this.duration;
+					const endProgress = endTime / this.duration;
+					const tweenProgress = bezier.at(
+						clamp01(map01(progress, startProgress, endProgress)),
+					);
+					const tweenValue = lerp(tweenProgress, c, next[ii]!);
+
+					res[ii] = tweenValue;
+				}
+
+				this.store.set(res as V);
+			}
+		else
+			scalar: {
+				const curr = this.isTruthyScalar(keyframe.x)
+					? Number(keyframe.x)
+					: this.getNextTruthyScalarKeyframe(i, -1)?.x ?? 0;
+
+				const { x: next = curr, time: endTime = this.duration } =
+					this.getNextTruthyScalarKeyframe(i) ?? {};
+
+				const startProgress = startTime / this.duration;
+				const endProgress = endTime / this.duration;
+				const tweenProgress = bezier.at(
+					clamp01(map01(progress, startProgress, endProgress)),
+				);
+				const res = lerp(tweenProgress, curr, next);
+
+				this.store.set(res as V);
+			}
+
+		this.progress = progress;
+	}
+	/* eslint-enable */
+
+	public override destroy(): void {
+		super.destroy();
+		this.track.destroy();
+	}
+
 	private isTruthyScalar(v: number) {
 		return !Number.isNaN(v) && v != null;
 	}
@@ -226,96 +316,6 @@ export class Layer<
 
 	private toHoleFilledVector<T>(v: readonly (T | undefined)[], fallback: T) {
 		return v.map((v) => v ?? fallback);
-	}
-
-	public override seekToProgress(progress: number): void {
-		const time = progress * this.duration;
-
-		const { keyframes } = this.track.computed;
-		const i = keyframes.findLastIndex(({ time: t }) => t <= time);
-
-		if (i < 0) {
-			this.store.set(this.#start);
-
-			return;
-		}
-
-		if (i === keyframes.length - 1) {
-			this.store.set(this.#end);
-
-			return;
-		}
-
-		const keyframe = keyframes[i]!;
-		const viableKeyframes = keyframes.filter(
-			({ time: t }) => t === keyframe.time,
-		);
-		if (viableKeyframes.length > 1 && keyframe.x instanceof Array)
-			keyframe.x = viableKeyframes.reduce<(number | undefined)[]>(
-				(a, b) => this.toCoalescedVectors(a, b.x as number[]),
-				keyframe.x,
-			) as V;
-		const { time: startTime, bezier } = keyframe;
-
-		if (keyframe.x instanceof Array)
-			vector: {
-				const curr = keyframe.x.some((v) => !this.isTruthyScalar(v))
-					? this.fillHolesInVector(
-							this.toCoalescedVectors(
-								this.toCoalescedVectors(
-									keyframe.x,
-									this.buildNextTruthyVector(i, -1),
-								),
-								this.buildNextTruthyVector(i, 1),
-							),
-							0,
-					  )
-					: (keyframe.x as number[]);
-
-				const res = Array<number>(curr.length).fill(0);
-
-				for (const [ii, c] of curr.entries()) {
-					const { x: next = curr, time: endTime = this.duration } =
-						this.getNextTruthyVectorKeyframeAtElement(i, ii) ?? {};
-
-					const startProgress = startTime / this.duration;
-					const endProgress = endTime / this.duration;
-					const tweenProgress = bezier.at(
-						clamp01(map01(progress, startProgress, endProgress)),
-					);
-					const tweenValue = lerp(tweenProgress, c, next[ii]!);
-
-					res[ii] = tweenValue;
-				}
-
-				this.store.set(res as V);
-			}
-		else
-			scalar: {
-				const curr = this.isTruthyScalar(keyframe.x)
-					? Number(keyframe.x)
-					: this.getNextTruthyScalarKeyframe(i, -1)?.x ?? 0;
-
-				const { x: next = curr, time: endTime = this.duration } =
-					this.getNextTruthyScalarKeyframe(i) ?? {};
-
-				const startProgress = startTime / this.duration;
-				const endProgress = endTime / this.duration;
-				const tweenProgress = bezier.at(
-					clamp01(map01(progress, startProgress, endProgress)),
-				);
-				const res = lerp(tweenProgress, curr, next);
-
-				this.store.set(res as V);
-			}
-
-		this.progress = progress;
-	}
-	/* eslint-enable */
-
-	public override destroy(): void {
-		super.destroy();
-		this.track.destroy();
 	}
 
 	private assertKeyframeTypeMatch(

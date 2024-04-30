@@ -14,7 +14,10 @@ import { Supply } from './Supply.js';
 export type Storify<T> = T extends infer U ? Store<U> : never;
 
 export class Store<T = unknown> implements ReadableStore<T> {
-	private subscriberAndInvalidators = new Set<SubscriberAndInvalidator<T>>();
+	private readonly subscriberAndInvalidators = new Set<
+		SubscriberAndInvalidator<T>
+	>();
+
 	private onStopped: Unsubscriber | undefined = undefined;
 
 	#supply: Supply<T> | undefined = undefined;
@@ -22,10 +25,13 @@ export class Store<T = unknown> implements ReadableStore<T> {
 		return (this.#supply ??= new Supply(this));
 	}
 
-	constructor(protected value: T, private onStarted?: StartStopNotifier<T>) {}
+	constructor(
+		protected value: T,
+		private readonly onStarted?: StartStopNotifier<T>,
+	) {}
 
 	public set(v: T) {
-		if (!Store.neq(this.get(), v)) return;
+		if (!this.neq(this.get(), v)) return;
 
 		this.value = v;
 		this.trigger();
@@ -90,7 +96,17 @@ export class Store<T = unknown> implements ReadableStore<T> {
 		this.onStopped = undefined;
 	}
 
-	private static neq(a: unknown, b: unknown) {
+	public derive<R>(fn: (v: T) => R, onStarted?: Store<R>['onStarted']) {
+		const store = new Store(fn(this.get()), onStarted);
+
+		this.subscribeLazy((v) => {
+			store.set(fn(v));
+		});
+
+		return store;
+	}
+
+	private neq(a: unknown, b: unknown) {
 		/* eslint-disable no-negated-condition, no-self-compare, eqeqeq */
 		return (
 			a != a
@@ -100,15 +116,5 @@ export class Store<T = unknown> implements ReadableStore<T> {
 				  typeof a === 'function'!
 		) as boolean;
 		/* eslint-enable */
-	}
-
-	public derive<R>(fn: (v: T) => R, onStarted?: Store<R>['onStarted']) {
-		const store = new Store(fn(this.get()), onStarted);
-
-		this.subscribeLazy((v) => {
-			store.set(fn(v));
-		});
-
-		return store;
 	}
 }

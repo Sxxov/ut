@@ -1,13 +1,4 @@
 export class ClientError extends Error {
-	constructor(message = 'No message provided, an error with errors?') {
-		super(message);
-		this.name = this.constructor.name;
-
-		// eslint is drunk
-		// eslint-disable-next-line
-		(Error as any).captureStackTrace?.(this, this.constructor);
-	}
-
 	public static from<T extends ClientError>(obj: Error): T {
 		const clientError = new this();
 
@@ -17,5 +8,14 @@ export class ClientError extends Error {
 		if (obj.cause) clientError.cause = obj.cause;
 
 		return clientError as T;
+	}
+
+	constructor(message = 'No message provided, an error with errors?') {
+		super(message);
+		this.name = this.constructor.name;
+
+		// eslint is drunk
+		// eslint-disable-next-line
+		(Error as any).captureStackTrace?.(this, this.constructor);
 	}
 }

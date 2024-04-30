@@ -3,7 +3,7 @@ import { IllegalStateError } from '../errors/IllegalStateError.js';
 import { UnimplementedError } from '../errors/UnimplementedError.js';
 import { UnreachableError } from '../errors/UnreachableError.js';
 import type { TrackComputedKeyframe } from './TrackComputedKeyframe.js';
-import type { TrackComputedKeyframeCollecton } from './TrackComputedKeyframeCollection.js';
+import type { TrackComputedKeyframeCollection } from './TrackComputedKeyframeCollection.js';
 import type { TrackKeyframe } from './TrackKeyframe.js';
 import type { TrackKeyframeValue } from './TrackKeyframeValue.js';
 
@@ -18,7 +18,7 @@ export class TrackComputedKeyframeCollectionFactory<
 
 	constructor(private readonly keyframes: readonly TrackKeyframe<V>[]) {}
 
-	public create(): Readonly<TrackComputedKeyframeCollecton<V>> {
+	public create(): Readonly<TrackComputedKeyframeCollection<V>> {
 		if (!this.computed) {
 			this.computeKeyframes(0, this.keyframes.length - 1);
 			this.computedKeyframes.sort((a, b) => a.time - b.time);

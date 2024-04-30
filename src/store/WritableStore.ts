@@ -4,7 +4,7 @@ export * from './ReadableStore.js';
 
 export type Updater<T> = (v: T) => T;
 
-export interface WritableStore<T> extends ReadableStore<T> {
+export type WritableStore<T> = ReadableStore<T> & {
 	set(value: T): void;
 	update(updater: Updater<T>): void;
-}
+};

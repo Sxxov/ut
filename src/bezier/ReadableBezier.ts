@@ -1,3 +1,3 @@
-export interface ReadableBezier {
+export type ReadableBezier = {
 	at(v: number): number;
-}
+};

@@ -8,7 +8,7 @@ import { Store } from '../Store.js';
  */
 export class LazyStore<T = unknown> extends Store<T> {
 	private initialised = false;
-	private lazy: ReturnType<typeof lazy>;
+	private readonly lazy: ReturnType<typeof lazy>;
 
 	constructor(factory: () => T, onStarted?: StartStopNotifier<T>) {
 		super(undefined as never, onStarted);

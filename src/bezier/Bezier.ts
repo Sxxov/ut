@@ -15,75 +15,6 @@ const enum B {
 }
 
 export class Bezier implements ReadableBezier {
-	private sampleValues: Float32Array | number[] =
-		typeof Float32Array === 'function'
-			? new Float32Array(B.SPLINE_TABLE_SIZE)
-			: new Array(B.SPLINE_TABLE_SIZE);
-
-	constructor(
-		private x1: number,
-		private y1: number,
-		private x2: number,
-		private y2: number,
-	) {
-		if (x1 !== y1 || x2 !== y2)
-			// calculate sample values
-			for (let i = 0; i < B.SPLINE_TABLE_SIZE; ++i) {
-				this.sampleValues[i] = Bezier.calcBezier(
-					i * B.SAMPLE_STEP_SIZE,
-					x1,
-					x2,
-				);
-			}
-	}
-
-	public at(v: number) {
-		if (this.x1 === this.y1 && this.x2 === this.y2) return v;
-
-		return Bezier.calcBezier(
-			this.getTforX(v, this.x1, this.x2),
-			this.y1,
-			this.y2,
-		);
-	}
-
-	private getTforX(aX: number, mX1: number, mX2: number) {
-		let intervalStart = 0;
-		let currentSampleIndex = 1;
-		const FINAL_SAMPLE_INDEX = B.SPLINE_TABLE_SIZE - 1;
-
-		while (
-			currentSampleIndex !== FINAL_SAMPLE_INDEX &&
-			this.sampleValues[currentSampleIndex]! <= aX
-		) {
-			intervalStart += B.SAMPLE_STEP_SIZE;
-			++currentSampleIndex;
-		}
-
-		--currentSampleIndex;
-
-		const currentSample = this.sampleValues[currentSampleIndex]!;
-		const nextSample = this.sampleValues[currentSampleIndex + 1]!;
-
-		// interpolate to provide an initial guess for t
-		const dist = (aX - currentSample) / (nextSample - currentSample);
-		const guessForT = intervalStart + dist * B.SAMPLE_STEP_SIZE;
-		const initialSlope = Bezier.getSlope(guessForT, mX1, mX2);
-
-		if (initialSlope >= B.NEWTON_MIN_SLOPE)
-			return Bezier.newtonRaphsonIterate(aX, guessForT, mX1, mX2);
-
-		if (initialSlope === 0) return guessForT;
-
-		return Bezier.binarySubdivide(
-			aX,
-			intervalStart,
-			intervalStart + B.SAMPLE_STEP_SIZE,
-			mX1,
-			mX2,
-		);
-	}
-
 	private static a(aA1: number, aA2: number) {
 		return 1 - 3 * aA2 + 3 * aA1;
 	}
@@ -113,6 +44,7 @@ export class Bezier implements ReadableBezier {
 		);
 	}
 
+	// eslint-disable-next-line max-params
 	private static binarySubdivide(
 		aX: number,
 		aA: number,
@@ -155,5 +87,74 @@ export class Bezier implements ReadableBezier {
 		}
 
 		return aGuessT;
+	}
+
+	private readonly sampleValues: Float32Array | number[] =
+		typeof Float32Array === 'function'
+			? new Float32Array(B.SPLINE_TABLE_SIZE)
+			: new Array(B.SPLINE_TABLE_SIZE);
+
+	constructor(
+		private readonly x1: number,
+		private readonly y1: number,
+		private readonly x2: number,
+		private readonly y2: number,
+	) {
+		if (x1 !== y1 || x2 !== y2)
+			// calculate sample values
+			for (let i = 0; i < B.SPLINE_TABLE_SIZE; ++i) {
+				this.sampleValues[i] = Bezier.calcBezier(
+					i * B.SAMPLE_STEP_SIZE,
+					x1,
+					x2,
+				);
+			}
+	}
+
+	public at(v: number) {
+		if (this.x1 === this.y1 && this.x2 === this.y2) return v;
+
+		return Bezier.calcBezier(
+			this.getT(v, this.x1, this.x2),
+			this.y1,
+			this.y2,
+		);
+	}
+
+	private getT(aX: number, mX1: number, mX2: number) {
+		let intervalStart = 0;
+		let currentSampleIndex = 1;
+		const FINAL_SAMPLE_INDEX = B.SPLINE_TABLE_SIZE - 1;
+
+		while (
+			currentSampleIndex !== FINAL_SAMPLE_INDEX &&
+			this.sampleValues[currentSampleIndex]! <= aX
+		) {
+			intervalStart += B.SAMPLE_STEP_SIZE;
+			++currentSampleIndex;
+		}
+
+		--currentSampleIndex;
+
+		const currentSample = this.sampleValues[currentSampleIndex]!;
+		const nextSample = this.sampleValues[currentSampleIndex + 1]!;
+
+		// interpolate to provide an initial guess for t
+		const dist = (aX - currentSample) / (nextSample - currentSample);
+		const guessForT = intervalStart + dist * B.SAMPLE_STEP_SIZE;
+		const initialSlope = Bezier.getSlope(guessForT, mX1, mX2);
+
+		if (initialSlope >= B.NEWTON_MIN_SLOPE)
+			return Bezier.newtonRaphsonIterate(aX, guessForT, mX1, mX2);
+
+		if (initialSlope === 0) return guessForT;
+
+		return Bezier.binarySubdivide(
+			aX,
+			intervalStart,
+			intervalStart + B.SAMPLE_STEP_SIZE,
+			mX1,
+			mX2,
+		);
 	}
 }

@@ -1,6 +1,6 @@
 import type { OrAnyNumber } from '../types/OrAnyNumber.js';
 
-export interface TimelineAtAlign {
+export type TimelineAtAlign = {
 	/**
 	 * The alignment of the segment on the timeline, in the range of 0-1, where:
 	 *
@@ -12,4 +12,4 @@ export interface TimelineAtAlign {
 	 * end at 150% of its duration.
 	 */
 	align: OrAnyNumber<0 | 0.5 | 1>;
-}
+};

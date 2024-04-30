@@ -8,6 +8,8 @@ export abstract class Animatable<T>
 	extends Supply<T>
 	implements ReadableAnimatable<T>
 {
+	public abstract readonly duration: number;
+
 	/** The current progress of the animatable, from 0 to 1. */
 	protected progress = 0;
 	/** The return value of {@linkcode requestAnimationFrame} in {@linkcode play}. */
@@ -19,8 +21,6 @@ export abstract class Animatable<T>
 	public get playing() {
 		return this.#playing;
 	}
-
-	public abstract readonly duration: number;
 
 	/**
 	 * Play the animatable.
@@ -146,14 +146,6 @@ export abstract class Animatable<T>
 	}
 
 	/**
-	 * Seek to a progress value.
-	 *
-	 * @param progress A value from 0 to 1, representing the completion of the
-	 *   animatable.
-	 */
-	public abstract seekToProgress(progress: number): void;
-
-	/**
 	 * Seek to a time.
 	 *
 	 * @param time A value from 0 to the duration of the animatable,
@@ -174,4 +166,12 @@ export abstract class Animatable<T>
 		super.destroy();
 		this.stop();
 	}
+
+	/**
+	 * Seek to a progress value.
+	 *
+	 * @param progress A value from 0 to 1, representing the completion of the
+	 *   animatable.
+	 */
+	public abstract seekToProgress(progress: number): void;
 }

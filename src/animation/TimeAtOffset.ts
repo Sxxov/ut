@@ -1,7 +1,7 @@
 import type { TimeAtTime } from './TimeAtTime.js';
 import type { TimelineAtAlign } from './TimelineAtAlign.js';
 
-export interface TimeAtOffset {
+export type TimeAtOffset = {
 	type?: 'offset';
 	/**
 	 * Place the segment _relative_ to the **current time**.
@@ -10,4 +10,4 @@ export interface TimeAtOffset {
 	 * @see {@linkcode TimelineAtAlign.align at.align} If you want to align its placement _relative_ to the **start or end of itself**.
 	 */
 	offset: number;
-}
+};

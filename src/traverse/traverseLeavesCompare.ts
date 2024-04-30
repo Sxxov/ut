@@ -15,6 +15,7 @@ export const traverseLeavesCompare = generateTraverser(function impl<
 		key: string | number | symbol,
 		parent1: any,
 		parent2: any,
+		// eslint-disable-next-line max-params
 	) => leaf1 === leaf2,
 ) {
 	for (const [key, value] of Object.entries(object1))

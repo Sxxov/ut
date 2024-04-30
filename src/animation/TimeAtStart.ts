@@ -3,7 +3,7 @@ import type { TimeAtEnd } from './TimeAtEnd.js';
 import type { TimelineAtAlign } from './TimelineAtAlign.js';
 import type { OrAnyNumber } from '../types/OrAnyNumber.js';
 
-export interface TimeAtStart {
+export type TimeAtStart = {
 	type?: 'start';
 	/**
 	 * Place the segment _relative_ to the **start of the timeline**.
@@ -16,4 +16,4 @@ export interface TimeAtStart {
 	 * @see {@linkcode TimelineAtAlign.align at.align} If you want to align its placement _relative_ to the **start or end of itself**.
 	 */
 	start: OrAnyNumber<0>;
-}
+};

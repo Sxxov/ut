@@ -2,7 +2,7 @@ import { Store } from '../store/Store.js';
 import { Supply } from '../store/Supply.js';
 import type { ReadonlyInvariant } from '../types/ReadonlyInvariant.js';
 import type { Unreadonly } from '../types/Unreadonly.js';
-import type { TrackComputedKeyframeCollecton } from './TrackComputedKeyframeCollection.js';
+import type { TrackComputedKeyframeCollection } from './TrackComputedKeyframeCollection.js';
 import { TrackComputedKeyframeCollectionFactory } from './TrackComputedKeyframeCollectionFactory.js';
 import type { TrackKeyframe } from './TrackKeyframe.js';
 import type { TrackKeyframeValue } from './TrackKeyframeValue.js';
@@ -14,7 +14,7 @@ export class Track<
 		return this.get();
 	}
 
-	#computed: TrackComputedKeyframeCollecton<V> | undefined = undefined;
+	#computed: TrackComputedKeyframeCollection<V> | undefined = undefined;
 	public get computed() {
 		return (this.#computed ??= new TrackComputedKeyframeCollectionFactory(
 			this.keyframes,

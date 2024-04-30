@@ -11,6 +11,7 @@ export type ShapedArrayStorify<T extends any[]> = ShapedArrayStore<T>;
 
 // @ts-expect-error shape will refer to the value, which is safe
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface ShapedArrayStore<Shape extends any[] = unknown[]>
 	extends ExtensibleStore<Shape>,
 		Shape {}

@@ -7,4 +7,5 @@ export const map = (
 	rangeEnd: number,
 	domainStart: number,
 	domainEnd: number,
+	// eslint-disable-next-line max-params
 ) => lerp(map01(t, rangeStart, rangeEnd), domainStart, domainEnd);

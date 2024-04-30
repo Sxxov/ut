@@ -4,13 +4,14 @@ export type SetStorify<T extends Set<any>> = T extends Set<infer U>
 	? SetStore<U>
 	: never;
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface SetStore<T = unknown>
 	extends ExtensibleStore<Set<T>>,
 		Set<T> {}
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class SetStore<T = unknown> extends ExtensibleStore<Set<T>> {
-	private setLength = 0;
+	private readonly setLength = 0;
 
 	constructor(iterable?: Iterable<T>) {
 		super(new Set(iterable));

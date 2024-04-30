@@ -9,7 +9,7 @@ export type StartStopNotifier<T> = (
 	set: Subscriber<T>,
 ) => Unsubscriber | undefined;
 
-export interface ReadableStore<T> {
+export type ReadableStore<T> = {
 	get(): T;
 	subscribe(
 		onChanged: Subscriber<T>,
@@ -22,4 +22,4 @@ export interface ReadableStore<T> {
 	trigger(): void;
 	destroy(): void;
 	derive<R>(fn: (v: T) => R): ReadableStore<R>;
-}
+};

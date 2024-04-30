@@ -21,6 +21,7 @@ export const traverseLeavesAssign = generateTraverser(function impl<
 		key: string | number | symbol,
 		fromParent: any,
 		toParent: any,
+		// eslint-disable-next-line max-params
 	): any => {
 		throw new IllegalInvocationError(
 			`Attempted to assign class instance to mismatched object when traversing, without providing an instantiator`,

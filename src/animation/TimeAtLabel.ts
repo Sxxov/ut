@@ -2,7 +2,7 @@ import type { TimelineAtAlign } from './TimelineAtAlign.js';
 import type { TimeAtOffset } from './TimeAtOffset.js';
 import type { OrAnyNumber } from '../types/OrAnyNumber.js';
 
-export interface TimeAtLabel {
+export type TimeAtLabel = {
 	type?: 'label';
 	/**
 	 * Place the segment _relative_ to the **start of a segment with the
@@ -18,4 +18,4 @@ export interface TimeAtLabel {
 	 * time** ({@linkcode TimeAtOffset.offset at.offset}).
 	 */
 	offset?: OrAnyNumber<0>;
-}
+};

@@ -8,8 +8,10 @@ import type { TimeSegment } from './TimeSegment.js';
 import type { TimelineAt } from './TimelineAt.js';
 import type { TimelineSegmentValue } from './TimelineSegmentValue.js';
 
-export interface TimelineSegment<V = TimelineSegmentValue>
-	extends TimeSegment<Animatable<V>, TimelineAt> {
+export type TimelineSegment<V = TimelineSegmentValue> = TimeSegment<
+	Animatable<V>,
+	TimelineAt
+> & {
 	/** The animatable to be placed */
 	x: Animatable<V>;
 
@@ -24,4 +26,4 @@ export interface TimelineSegment<V = TimelineSegmentValue>
 	 * @see {@linkcode TimelineAtAlign.align at.align} If you want to align its placement _relative_ to the **start or end of itself**.
 	 */
 	at?: TimelineAt;
-}
+};
