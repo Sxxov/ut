@@ -1,3 +1,5 @@
+import * as p from 'node:path';
+import * as fs from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import vitePluginDts from 'vite-plugin-dts';
 
@@ -18,7 +20,15 @@ export default defineConfig({
 		},
 		// https://github.com/vitejs/vite/issues/16262
 		rollupOptions: {
-			input: 'src/index.ts',
+			input: await Promise.all(
+				(await fs.readdir('src'))
+					.map((filename) => `src/${filename}`)
+					.map(async (path) =>
+						(await fs.stat(path)).isDirectory()
+							? `${path}/index.ts`
+							: path,
+					),
+			),
 			output: {
 				preserveModules: true,
 			},
