@@ -108,6 +108,12 @@ export class Store<T = unknown> implements ReadableStore<T> {
 		this.onStopped = undefined;
 	}
 
+	public receive(from: ReadableStore<T>) {
+		return from.subscribe((v) => {
+			this.set(v);
+		});
+	}
+
 	public derive<R>(fn: (v: T) => R, onStarted?: Store<R>['onStarted']) {
 		const store = new Store(fn(this.get()), onStarted);
 
