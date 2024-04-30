@@ -14,6 +14,18 @@ import { Supply } from './Supply.js';
 export type Storify<T> = T extends infer U ? Store<U> : never;
 
 export class Store<T = unknown> implements ReadableStore<T> {
+	protected static neq(a: unknown, b: unknown) {
+		/* eslint-disable no-negated-condition, no-self-compare, eqeqeq */
+		return (
+			a != a
+				? b == b
+				: a !== b ||
+				  (a && typeof a === 'object') ||
+				  typeof a === 'function'!
+		) as boolean;
+		/* eslint-enable */
+	}
+
 	private readonly subscriberAndInvalidators = new Set<
 		SubscriberAndInvalidator<T>
 	>();
@@ -31,7 +43,7 @@ export class Store<T = unknown> implements ReadableStore<T> {
 	) {}
 
 	public set(v: T) {
-		if (!this.neq(this.get(), v)) return;
+		if (!Store.neq(this.get(), v)) return;
 
 		this.value = v;
 		this.trigger();
@@ -104,17 +116,5 @@ export class Store<T = unknown> implements ReadableStore<T> {
 		});
 
 		return store;
-	}
-
-	private neq(a: unknown, b: unknown) {
-		/* eslint-disable no-negated-condition, no-self-compare, eqeqeq */
-		return (
-			a != a
-				? b == b
-				: a !== b ||
-				  (a && typeof a === 'object') ||
-				  typeof a === 'function'!
-		) as boolean;
-		/* eslint-enable */
 	}
 }
