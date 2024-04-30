@@ -104,6 +104,9 @@
 		},
 		"./animation": {
 			"import": "./dist/animation/index.js"
+		},
+		"./human": {
+			"import": "./dist/human/index.js"
 		}
 	}
 }
