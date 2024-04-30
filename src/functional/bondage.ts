@@ -11,6 +11,7 @@ const getAllPropertyNames = (obj: any) => {
 };
 /* eslint-enable */
 
+/** Bind all function properties of an object to the object */
 export const bondage = <T extends Record<any, any>>(obj: T) =>
 	Object.assign(
 		Object.create(obj),
