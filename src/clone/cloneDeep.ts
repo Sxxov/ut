@@ -21,10 +21,10 @@ export const cloneDeep = <T extends Record<any, any>>(
 			? new Set(object) // See note about this!
 			: object instanceof Map
 			? new Map(
-					Array.from(object, ([key, val]) => [
-						key,
-						cloneDeep(val, hash),
-					]),
+					Array.from(
+						object,
+						([key, val]) => [key, cloneDeep(val, hash)] as const,
+					),
 			  )
 			: object instanceof Date
 			? new Date(object)
