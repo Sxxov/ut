@@ -5,8 +5,8 @@
 	"main": "./dist/index.js",
 	"type": "module",
 	"scripts": {
-		"dev": "tsc --watch --preserveWatchOutput",
-		"build": "tsc --build --clean && tsc",
+		"dev": "vite dev",
+		"build": "vite build",
 		"prepublishOnly": "npm run build"
 	},
 	"keywords": [
@@ -40,7 +40,9 @@
 		"prettier-plugin-jsdoc": "^0.4.2",
 		"prettier-plugin-svelte": "^2.10.1",
 		"ts-node": "^10.9.1",
-		"typescript": "5.1"
+		"typescript": "5.1",
+		"vite": "^5.2.10",
+		"vite-plugin-dts": "^3.9.0"
 	},
 	"exports": {
 		".": {
