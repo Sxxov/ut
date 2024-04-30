@@ -17,3 +17,4 @@ export * from './bezier/index.js';
 export * from './bezier/beziers/index.js';
 export * from './async/index.js';
 export * from './animation/index.js';
+export * from './svg/index.js';
